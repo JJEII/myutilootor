@@ -7,4 +7,4 @@ If you've used metaf, myutilootor should feel somewhat familiar. (See metaf's he
 myutilootor (by default) automatically converts to utl only those rules that are active, culling all inactive rules from the results. (Use a terminal "-keep-inactive" command-line
 option to suppress this behavior.)
 
-**The necessary files to run myutilootor are in bin/Debug/net7.0. Read the text file myutilootorREADME.mut that's in there.**
+_**The necessary files to run myutilootor are in bin/Debug/net7.0. Read the text file myutilootorREADME.mut that's in there.**_
