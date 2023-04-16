@@ -1,0 +1,64 @@
+<NotepadPlus>
+    <UserLang name="myutilootor_dark" ext="mut" udlVersion="2.1">
+        <Settings>
+            <Global caseIgnored="no" allowFoldOfComments="no" foldCompact="no" forcePureLC="0" decimalSeparator="0" />
+            <Prefix Keywords1="no" Keywords2="no" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
+        </Settings>
+        <KeywordLists>
+            <Keywords name="Comments">00~~ 01 02 03 04</Keywords>
+            <Keywords name="Numbers, prefix1"></Keywords>
+            <Keywords name="Numbers, prefix2"></Keywords>
+            <Keywords name="Numbers, extras1"></Keywords>
+            <Keywords name="Numbers, extras2"></Keywords>
+            <Keywords name="Numbers, suffix1"></Keywords>
+            <Keywords name="Numbers, suffix2"></Keywords>
+            <Keywords name="Numbers, range"></Keywords>
+            <Keywords name="Operators1">!= == &gt;= &lt;= &amp;&amp; || \ ( ) % / * + - # &gt; &lt; ^ | . $ , [ ] { } ; HasFlags</Keywords>
+            <Keywords name="Operators2"></Keywords>
+            <Keywords name="Folders in code1, open"></Keywords>
+            <Keywords name="Folders in code1, middle"></Keywords>
+            <Keywords name="Folders in code1, close"></Keywords>
+            <Keywords name="Folders in code2, open"></Keywords>
+            <Keywords name="Folders in code2, middle"></Keywords>
+            <Keywords name="Folders in code2, close"></Keywords>
+            <Keywords name="Folders in comment, open">{</Keywords>
+            <Keywords name="Folders in comment, middle"></Keywords>
+            <Keywords name="Folders in comment, close">}</Keywords>
+            <Keywords name="Keywords1">ArmorColorLike BaseSkillRange BuffedSkillGE CharLevelGE CharLevelLE ColorLike DKeyBuffedGE DKeyGE DKeyLE DmgPercentGE EmptyMainPackSlotsGE LKeyBuffedGE LKeyE LKeyFlags LKeyGE LKeyLE LKeyNE MatchRx ObjClass SlotPalette SlotColorLike</Keywords>
+            <Keywords name="Keywords2">CalcedBuffedMedianDmgGE CalcedBuffedMissileDmgGE CalcedBuffedTinkDmgGE CalcedBuffedTinkTarget CalcedTotalRatingsGE MinDmgGE NSpellsGE NSpellsRxGE SpellRx</Keywords>
+            <Keywords name="Keywords3">A_None A_Amuli_Coat_Chest A_Amuli_Coat_CollarShoulder A_Amuli_Coat_ArmsTrim A_Amuli_Legs_Base A_Amuli_Legs_Trim A_Celdon_Base A_Celdon_Veins A_Chiran_Coat_BaseArms A_Chiran_Coat_Stripes A_Chiran_Legs_Girth A_Chiran_Legs_Legs A_Chiran_Legs_Trim A_Chiran_Helm_Horns A_Chiran_Helm_Base A_Haebrean_BP_Chest A_Haebrean_BP_Ornaments A_Haebrean_BP_Trim A_Haebrean_Girth_Base A_Haebrean_Girth_BeltScales A_Haebrean_Helm_Base A_Haebrean_Helm_Mask A_Haebrean_Pauldrons_Base A_Haebrean_Pauldrons_Ornaments A_Lorica_BP_Veins A_Lorica_BP_Base A_Lorica_BP_NeckTrim A_Lorica_Legs_Base A_Lorica_Legs_KneesBeltCrotch A_Lorica_Legs_Legs A_Nariyid_BP_CircleLines A_Nariyid_BP_Base A_Nariyid_BP_Shoulders A_Nariyid_Girth_Base A_Nariyid_Girth_BeltLines A_Nariyid_Girth_Ornaments A_Nariyid_Sleeves_Shoulders A_Nariyid_Sleeves_UpperArm A_Nariyid_Sleeves_LowerArm A_Olthoi_BP_Base A_Olthoi_BP_Veins A_Olthoi_Alduressa_Legs_GirthBase A_Olthoi_Alduressa_Legs_GirthLines A_Olthoi_Alduressa_Legs_LegsLines A_Olthoi_Amuli_Coat_Base A_Olthoi_Amuli_Coat_Trim A_Olthoi_Amuli_Coat_Shoulders A_Olthoi_Amuli_Legs_Trim A_Olthoi_Koujia_Kabuton_Base A_Olthoi_Koujia_Kabuton_Horns A_Olthoi_Koujia_Legs_Base A_Olthoi_Koujia_Legs_SidesShins A_Scalemail_Cuirass_Base A_Scalemail_Cuirass_Bumps A_Scalemail_Cuirass_Belt A_Tenassa_Legs_LineAtSide A_Tenassa_Legs_Base A_Tenassa_Legs_Highlight A_Tenassa_BP_Shoulders A_Tenassa_BP_Base A_Yoroi_Cuirass_Base A_Yoroi_Cuirass_Belt A_Yoroi_Girth_Base A_Yoroi_Girth_Belt M_Name M_SecondaryName C_Armor C_BaseAlchemy C_BaseCooking C_BaseFletching C_Book C_Bundle C_Clothing C_Container C_Corpse C_CraftedAlchemy C_CraftedCooking C_CraftedFletching C_Door C_Foci C_Food C_Gem C_HealingKit C_Housing C_Jewelry C_Journal C_Key C_Lifestone C_Lockpick C_ManaStone C_MeleeWeapon C_Misc C_MissileWeapon C_Money C_Monster C_Npc C_Plant C_Player C_Portal C_Salvage C_Scroll C_Services C_Sign C_SpellComponent C_TradeNote C_Unknown C_Ust C_Vendor C_WandStaffOrb D_ApproachDistance D_SalvageWorkmanship L_Behavior L_Category L_Container L_Coverage L_CreateFlags1 L_CreateFlags2 L_EquipableSlots L_EquippedSlots L_EquipType L_HookMask L_Icon L_IconOutline L_IconOverlay L_IconUnderlay L_ItemSlots L_Material L_MissileType L_Monarch L_PackSlots L_Slot L_StackCount L_StackMax L_Type L_Unknown10 L_Unknown100000 L_Unknown800000 L_Unknown8000000 L_UsageMask L_UsesRemaining L_UsesTotal L_Value S_Alchemy S_ArcaneLore S_ArmorTinkering S_AssessCreature S_AssessPerson S_Axe S_Bow S_Cooking S_CreatureEnchantment S_Crossbow S_Dagger S_Deception S_DirtyFighting S_DualWield S_FinesseWeapons S_Fletching S_Gearcraft S_Healing S_HeavyWeapons S_ItemEnchantment S_ItemTinkering S_Jump S_Leadership S_LifeMagic S_LightWeapons S_Lockpick S_Loyalty S_Mace S_MagicDefense S_MagicItemTinkering S_ManaConversion S_MeleeDefense S_MissileDefense S_MissileWeapons S_Recklessness S_Run S_Salvaging S_Shield S_SneakAttack S_Spear S_Staff S_Summoning S_Sword S_ThrownWeapons S_TwoHandedCombat S_Unarmed S_VoidMagic S_WarMagic S_WeaponTinkering</Keywords>
+            <Keywords name="Keywords4">NO:</Keywords>
+            <Keywords name="Keywords5">M_DateBorn M_FellowshipName M_FullDescription M_ImbuedBy M_InscribedBy M_Inscription M_LastTinkeredBy M_MonarchName M_OnlyActivatedBy M_Patron M_PortalDestination M_SimpleDescription M_Title M_UsageInstructions D_AcidProt D_AttackBonus D_BludgeonProt D_ColdProt D_DamageBonus D_ElementalDamageVersus D_FireProt D_Heading D_HealingKitRestoreBonus D_LightningProt D_MagicDBonus D_ManaCBonus D_ManaRateOfChange D_ManaStoneChanceDestruct D_ManaTransferEfficiency D_MeleeDefenseBonus D_MissileDBonus D_PierceProt D_Range D_Scale D_SlashProt D_Variance L_ActivationReqSkillId L_ActiveSpellCount L_AffectsVitalAmt L_AffectsVitalId L_Age L_ArmorLevel L_ArmorSetID L_AssociatedSpell L_Attuned L_Bonded L_Burden L_CloakChanceType L_CooldownSeconds L_CreatureLevel L_CritDamRating L_CritDamResistRating L_CritRating L_CritResistRating L_CurrentMana L_DamageType L_DamRating L_DamResistRating L_DateOfBirth L_Deaths L_DescriptionFormat L_ElementalDmgBonus L_EquipSkill L_FishingSkill L_Flags L_GemSettingQty L_GemSettingType L_Gender L_HealBoostRating L_Heritage L_HookType L_HouseOwner L_Imbued L_ItemMaxLevel L_KeysHeld L_Landblock L_LockpickDifficulty L_LockpickSkillBonus L_LoreRequirement L_MagicDef L_ManaCost L_MaxDamage L_MaximumMana L_MaxLevelRestrict L_MinLevelRestrict L_Model L_NumberFollowers L_NumberItemsSalvaged L_NumberTimesTinkered L_PagesTotal L_PagesUsed L_PhysicsDataFlags L_PortalRestrictions L_Rank L_RankRequirement L_RareId L_RestrictedToToD L_SkillCreditsAvail L_SkillLevelReq L_SlayerSpecies L_SpecialProps L_Species L_SpellCount L_Spellcraft L_SummoningGemBuffed L_SummoningGemLevel L_TotalValue L_Unenchantable L_VitalityRating L_WandElemDmgType L_WeaponMasteryCategory L_WeapSpeed L_Wielder L_WieldingSlot L_WieldReqAttribute L_WieldReqType L_WieldReqValue L_Workmanship L_XPForVPReduction</Keywords>
+            <Keywords name="Keywords6">ON:</Keywords>
+            <Keywords name="Keywords7">SALVAGE:</Keywords>
+            <Keywords name="Keywords8">V_Agate V_Alabaster V_Amber V_Amethyst V_Aquamarine V_ArmoredilloHide V_Azurite V_BlackGarnet V_BlackOpal V_Bloodstone V_Brass V_Bronze V_Carnelian V_Ceramic V_Citrine V_Copper V_Diamond V_Ebony V_Emerald V_FireOpal V_Gold V_Granite V_GreenGarnet V_GreenJade V_GromnieHide V_Hematite V_ImperialTopaz V_Iron V_Ivory V_Jet V_LapisLazuli V_LavenderJade V_Leather V_Linen V_Mahogany V_Malachite V_Marble V_Moonstone V_Oak V_Obsidian V_Onyx V_Opal V_Peridot V_Pine V_Porcelain V_Pyreal V_RedGarnet V_RedJade V_ReedSharkHide V_RoseQuartz V_Ruby V_Sandstone V_Sapphire V_Satin V_Serpentine V_Silk V_Silver V_SmokeyQuartz V_Steel V_Sunstone V_Teak V_TigerEye V_Tourmaline V_Turquoise V_Velvet V_WhiteJade V_WhiteQuartz V_WhiteSapphire V_Wool V_YellowGarnet V_YellowTopaz V_Zircon</Keywords>
+            <Keywords name="Delimiters">00` 01 02` 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23</Keywords>
+        </KeywordLists>
+        <Styles>
+            <WordsStyle name="DEFAULT" fgColor="A06E32" bgColor="000000" fontName="C:\Users\JJEII\AppData\Roaming\Notepad++\backup\new 12@2020-08-19_144827" fontStyle="0" nesting="0" />
+            <WordsStyle name="COMMENTS" fgColor="000000" bgColor="E0E0E0" fontName="II\source\repos\metaf\bin\Debug\netcoreapp3.1\Commands_out.met.af" fontStyle="0" nesting="0" />
+            <WordsStyle name="LINE COMMENTS" fgColor="A0A0A0" bgColor="202020" fontName="NewDocDefaultSettings" fontStyle="0" nesting="0" />
+            <WordsStyle name="NUMBERS" fgColor="AA3CAA" bgColor="000000" fontName="GUIConfig" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS1" fgColor="2878C8" bgColor="000000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS2" fgColor="2878C8" bgColor="380000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="468C46" bgColor="000000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS4" fgColor="FF8080" bgColor="500000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS5" fgColor="468C46" bgColor="380000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS6" fgColor="60FF60" bgColor="005000" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS7" fgColor="D0D000" bgColor="3C3C00" fontName="indentGuideLine" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS8" fgColor="A0A050" bgColor="141400" fontStyle="0" nesting="0" />
+            <WordsStyle name="OPERATORS" fgColor="919191" bgColor="000000" fontStyle="1" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE1" fgColor="000000" bgColor="FFFFFF" fontName="&#x4490;&#xA01C;&#x0290;" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE2" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN COMMENT" fgColor="A0A0A0" bgColor="202020" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS1" fgColor="D78200" bgColor="000000" fontName="&#x48D0;&#xA01C;&#x0290;" fontStyle="1" nesting="0" />
+            <WordsStyle name="DELIMITERS2" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS3" fgColor="000000" bgColor="FFFFFF" fontName="nbMaxFindHistoryPath" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS4" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS5" fgColor="000000" bgColor="FFFFFF" fontName="&#x0EC0;&#xA01B;&#x0290;" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS6" fgColor="000000" bgColor="FFFFFF" fontName="25" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS7" fgColor="000000" bgColor="FFFFFF" fontName="TabBar" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS8" fgColor="000000" bgColor="FFFFFF" fontName="&#x12B0;&#xA01B;&#x0290;" fontStyle="0" nesting="0" />
+        </Styles>
+    </UserLang>
+</NotepadPlus>
