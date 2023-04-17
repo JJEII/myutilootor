@@ -3,3 +3,4 @@ obj/
 bin/Debug/net7.0/myutilootor.pdb
 bin/Debug/net7.0/myutilootor.deps.json
 bin/Debug/net7.0/utl_mut/
+myutilootor.csproj
