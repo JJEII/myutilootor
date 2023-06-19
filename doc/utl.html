@@ -1,0 +1,3581 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="fonts/fontfaces.css"
+      type="text/css"
+      charset="utf-8"
+    />
+
+    <title>UTL Format</title>
+    <style>
+      /* *********************************************
+            WEBPAGE SETUP
+      ********************************************* */
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        font-size: 62.5%; /* 10px vs default of 16px, but accommodates user changing the default */
+        font-family: "cmu_serif", times;
+        --indentAmount: 0.5in;
+      }
+      /* @media (prefers-color-scheme: light) { */
+      :root {
+        --bodyColor: hsl(0, 0%, 0%);
+        --bodyBgColor: hsl(0, 0%, 100%);
+        --paperBoxShadowColor: hsla(0, 0%, 0%, 0.1);
+        --hrBrdColor: hsla(0, 0%, 0%, 0.07);
+        --utlBoxBgColor: hsl(60, 83%, 98%);
+        --utlBoxBrdColor: hsl(0, 0%, 33%);
+        --utlBoxShadowColor: hsl(72, 4%, 80%);
+        --utlBoxKeywordColor: hsl(227, 80%, 60%);
+        --utlBoxCommentColor: hsl(131, 60%, 48%);
+        --tooltipBgColor: hsl(60, 100%, 97%);
+        --tooltipColor: hsl(0, 0%, 0%);
+        --tooltipBrdColor: hsl(0, 0%, 0%);
+        --intraLinkColor: hsl(279, 57%, 49%);
+        --tableRowHoverBgColor: hsl(0, 0%, 93%);
+        --hitsServerColor: hsl(0, 100%, 35%);
+        --inactiveColor: hsl(0, 0%, 75%);
+        --highlightColor: hsl(60, 100%, 50%);
+      }
+      /* } */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bodyColor: hsl(0, 0%, 70%);
+          --bodyBgColor: hsl(0, 0%, 0%);
+          --paperBoxShadowColor: hsla(0, 0%, 100%, 0.2);
+          --hrBrdColor: hsla(0, 0%, 100%, 0.2);
+          --utlBoxBgColor: hsl(60, 100%, 6%);
+          --utlBoxBrdColor: hsl(0, 0%, 45%);
+          --utlBoxShadowColor: hsl(72, 4%, 25%);
+          --utlBoxKeywordColor: hsl(227, 50%, 55%);
+          --utlBoxCommentColor: hsl(131, 30%, 45%);
+          --tooltipBgColor: hsl(60, 100%, 12%);
+          --tooltipColor: hsl(0, 0%, 80%);
+          --tooltipBrdColor: hsl(0, 0%, 60%);
+          --intraLinkColor: hsl(279, 50%, 62%);
+          --tableRowHoverBgColor: hsl(0, 0%, 15%);
+          --hitsServerColor: hsl(0, 50%, 62%);
+          --inactiveColor: hsl(0, 0%, 37%);
+          --highlightColor: hsl(60, 100%, 15%);
+        }
+      }
+      body {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        color: var(--bodyColor);
+        background-color: var(--bodyBgColor);
+      }
+      .paper {
+        width: 8.5in;
+        margin: var(--indentAmount) auto;
+        box-shadow: 0 0 20px 10px var(--paperBoxShadowColor);
+        padding: var(--indentAmount);
+      }
+
+      /* *********************************************
+            HEADER SETTINGS
+      ********************************************* */
+      header {
+        padding-top: 0.5in;
+        margin-bottom: 3rem;
+      }
+      hr {
+        width: 67%;
+        margin: 0 auto;
+        border-color: var(--hrBrdColor);
+      }
+      #title-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        height: 2in;
+      }
+      #title-text h1,
+      #title-text h3 {
+        font-weight: normal;
+      }
+
+      /* *********************************************
+            CUSTOM LIST SETTINGS
+      ********************************************* */
+      /* custom list counter for utl-box */
+      @counter-style utl-box-list-counter {
+        system: extends decimal;
+        suffix: " ";
+      }
+      /* custom list for Table of Contents / List of Tables */
+      .upfront {
+        list-style-type: none;
+      }
+      /* custom list counter setup for [sub[sub[...]]]sections to decimal-concatenate all the counters */
+      .sec {
+        counter-reset: index;
+        list-style-type: none;
+      }
+      .sec li::before {
+        counter-increment: index;
+        content: counters(index, ".", decimal) " ";
+      }
+      /* suppress nested section list counters inside utl boxes */
+      .sec .utl-box li::before {
+        counter-increment: none;
+        content: none;
+      }
+      /* adjust spacing in all [sub[sub[...]]]section titles between numbering and text */
+      .sec li p:first-child,
+      .appendix-list li p:first-child {
+        display: inline-block;
+        text-indent: 0.75em;
+      }
+      #toc-title,
+      #lot-title {
+        display: inline-block;
+      }
+      /* sec settings for font and vertical-spacing */
+      .sec-list ::before,
+      .sec-list li p:first-child,
+      .appendix-list ::before,
+      .appendix-list li p:first-child,
+      #toc-title,
+      #lot-title {
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin: 3rem 0 1.5rem 0;
+      }
+      /* subsec settings for font and vertical-spacing */
+      .subsec-list ::before,
+      .subsec-list li p:first-child {
+        font-size: 1.9rem;
+        font-weight: bold;
+        margin: 2.6rem 0 1.3rem 0;
+      }
+      /* subsubsec settings for font and vertical-spacing */
+      .subsubsec-list ::before,
+      .subsubsec-list li p:first-child {
+        font-size: 1.75rem;
+        font-weight: bold;
+        margin: 2.3rem 0 1.25rem 0;
+      }
+      /* below subsubsec settings for font and vertical-spacing */
+      .subsubsubsec-list ::before,
+      .subsubsubsec-list li p:first-child {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin: 2.05rem 0 1.025rem 0;
+      }
+      /* un-indent first content paragraph (after section-title "paragraph") */
+      .sec-list p:nth-child(2),
+      .appendix-list p:nth-child(2) {
+        text-indent: 0;
+      }
+      .appendix-list {
+        counter-reset: extra;
+        list-style-type: none;
+        symbols: "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P"
+          "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z";
+      }
+      .appendix-list li::before {
+        counter-increment: extra;
+        content: counter(extra, upper-alpha) " ";
+      }
+
+      /* *********************************************
+            UTL-BOX SETTINGS (and CODE-TEXT class)
+      ********************************************* */
+      /* NOTE: list-related utl-box definitions are in CUSTOM LIST SETTINGS section (custom @list-counter and section-counter-suppressoin rule when inside utl-box) */
+      /* utl-box font */
+      .code-text,
+      .utl-box ol li {
+        font-family: "cmu_typewriter", courier;
+        /* letter-spacing: -0.02em; */ /* a bit of letter-spacing compression is better if default/fallback fonts are used instead of CMU */
+      }
+      /* utl-box setup */
+      .utl-box {
+        background-color: var(--utlBoxBgColor); /* 60, 83%, 98% */
+        border: 1px solid var(--utlBoxBrdColor);
+        /* font-weight: bold; */ /* may be better if default/fallback fonts are used instead of CMU */
+        font-size: 1.4rem;
+        padding: 0.35rem;
+        box-shadow: 0.4rem 0.4rem 0 0 var(--utlBoxShadowColor); /* 72, 4%, 78% */
+        margin: 0.5rem 0.4rem 0.8rem 0;
+      }
+      /* utl-box keyword markup */
+      .utl-box .keyword {
+        color: var(--utlBoxKeywordColor); /* 227,64,58 */
+        font-weight: bold;
+      }
+      /* utl-box comment markup */
+      .utl-box .comment {
+        color: var(--utlBoxCommentColor); /* 131,40,50 */
+        font-weight: normal;
+      }
+      /* utl-box custom list counter for code-line-counting (omit terminal period) */
+      .utl-box ol {
+        list-style-type: utl-box-list-counter;
+      }
+      /* utl-box list counter (::marker) size */
+      .utl-box ol ::marker {
+        font-size: 1.2rem;
+      }
+      /* utl-box line-listing rules so the first line is to the far left, but any content on lines that wrap is indented */
+      .utl-box ol li {
+        padding-left: 4rem;
+        text-indent: -4rem;
+      }
+      /* utl-box force-indent class (same width as when a line wraps) */
+      .utl-box .force-indent {
+        display: inline-block;
+        width: 4rem;
+      }
+
+      /* *********************************************
+            TOOL-TIP SETTINGS
+      ********************************************* */
+      .tool-tip {
+        position: relative;
+        white-space: nowrap;
+        cursor: pointer;
+        /* display: inline-block;
+        border-bottom: 1px dotted black; */
+      }
+      .tool-tip .tool-tip-text {
+        visibility: hidden;
+        text-align: center;
+
+        /* background-color: #555;
+        color: #fff;
+        border-radius: 0.25rem; */
+        font-family: arial;
+        font-weight: normal;
+        font-size: 1.3rem;
+        background-color: var(--tooltipBgColor);
+        color: var(--tooltipColor);
+        border: 1px solid var(--tooltipBrdColor);
+        text-decoration: none;
+
+        padding: 0.25rem 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 110%; /* 125% */
+        left: 50%;
+        transform: translate(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      /* bottom pointy */
+      /* .tool-tip .tool-tip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -0.4rem;
+        border-width: 0.4rem;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+      } */
+      .tool-tip:hover .tool-tip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* *********************************************
+            OTHER DOCUMENT SETTINGS
+      ********************************************* */
+      /* NOTE: rule to un-indent first content paragraph (after section-title "paragraph") is in CUSTOM LIST SETTINGS section */
+      p {
+        text-indent: 0.25in;
+        text-align: justify;
+        /* text-justify: inter-word; */
+      }
+      a {
+        color: var(--intraLinkColor);
+      }
+      .upfront a,
+      .no-dec {
+        text-decoration: none;
+      }
+      .sort-table {
+        margin: 2rem auto;
+        border-collapse: collapse;
+      }
+      .sort-table caption {
+        margin-bottom: 0.5rem;
+      }
+      .sort-table tbody tr:hover {
+        background-color: var(--tableRowHoverBgColor);
+      }
+      .sort-table th,
+      .sort-table th > * {
+        text-decoration: underline;
+      }
+      .sort-table th,
+      .sort-table td {
+        padding: 0 0.5rem;
+      }
+      .dark-red {
+        color: var(--hitsServerColor);
+      }
+      /* suppress bold font-weight for code-text inside section titles */
+      span.code-text {
+        font-weight: normal;
+      }
+      .grayed-out {
+        color: var(--inactiveColor);
+      }
+      .strike-through {
+        text-decoration: line-through;
+      }
+      .small-text {
+        font-size: 1.2rem;
+      }
+      .no-wrap {
+        white-space: nowrap;
+      }
+      .high-light {
+        background-color: var(--highlightColor);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="paper">
+      <div class="page-inside-margins">
+        <header>
+          <hr />
+          <div id="title-text">
+            <h1>Format of .utl Files (inferred)</h1>
+            <h3>Eskarina of Morningthaw/Coldeve</h3>
+            <h3>June 19, 2023</h3>
+          </div>
+          <hr />
+          <div id="toc">
+            <div id="toc-title">Contents</div>
+            <ul id="toc-contents" class="upfront"></ul>
+          </div>
+          <div id="lot">
+            <div id="lot-title">List of Tables</div>
+            <ul id="lot-contents" class="upfront"></ul>
+          </div>
+        </header>
+        <hr />
+        <ol class="sec sec-list">
+          <li id="sec--introduction">
+            <p>Introduction</p>
+            <p>
+              After creating the <span class="code-text">metaf</span> tool, I
+              later moved on to methodically reverse engineer the .utl file
+              format and create the
+              <span class="code-text">myutilootor</span> tool. The information
+              in this document summarizes my discoveries. I make no promises as
+              to its accuracy, though it does seem quite workable.
+            </p>
+            <p>
+              In my .met and .nav file format document, I briefly included a
+              description of the general &lsquo;VT Table&rsquo; file format.
+              While there are other VT files that conform to that format, .utl
+              files are not among them. They do similarly require sequential
+              reading to consume their contents, though; so if there&rsquo;s a
+              formatting error at some point, usually all subsequent data cannot
+              be properly read due to its misalignment with formatting
+              expectations.
+            </p>
+            <p>
+              <span class="high-light"
+                >NOTE: Click any column heading in any table in this document to
+                re-sort it by that column.</span
+              >
+            </p>
+          </li>
+
+          <li id="sec--overall-format">
+            <p>Overall Format</p>
+            <p>The high-level view of the .utl data format is as follows.</p>
+            <p>Files are:</p>
+            <div class="utl-box">
+              <ol>
+                <li>UTL <span class="comment">#static string</span></li>
+                <li>
+                  1
+                  <span class="comment"
+                    >#static 1 (maybe number of tables saved in file?)</span
+                  >
+                </li>
+
+                <li>
+                  RuleCount
+                  <span class="comment">#number of loot rules in file</span>
+                </li>
+                <li>
+                  [<span class="keyword">Rules</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define RuleCount number of
+                    loot rules</span
+                  >
+                </li>
+                <li>
+                  SalvageCombine <span class="comment">#static string</span>
+                </li>
+                <li>
+                  ByteArrayCount
+                  <span class="comment"
+                    >#byte count of entire following salvage section&rsquo;s
+                    text, incl. newlines</span
+                  >
+                </li>
+                <li>
+                  1
+                  <span class="comment"
+                    >#static 1; unknown meaning (default something?)</span
+                  >
+                </li>
+                <li>
+                  DefaultCombinationText
+                  <span class="comment"
+                    >#salvage&rsquo;s Default Combination rule, e.g., 1-6, 7-8,
+                    9, 10</span
+                  >
+                </li>
+                <li>
+                  SalvageCraftRuleCount
+                  <span class="comment"
+                    >#number of specific-salvage-type workmanship-combination
+                    rules</span
+                  >
+                </li>
+                <li>
+                  [<span class="keyword">SalvageRules</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define SalvageCraftRuleCount
+                    combo rules</span
+                  >
+                </li>
+                <li>
+                  SalvageValueRuleCount
+                  <span class="comment"
+                    >#number of specific-salvage-type value-combination
+                    rules</span
+                  >
+                </li>
+                <li>
+                  [<span class="keyword">SalvageRules</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define SalvageValueRuleCount
+                    combo rules</span
+                  >
+                </li>
+              </ol>
+            </div>
+            <p><span class="code-text">Rules</span> are:</p>
+            <div class="utl-box">
+              <ol>
+                <li>
+                  RuleName <span class="comment">#name of loot rule</span>
+                </li>
+                <li>
+                  <span width="9"></span><span class="force-indent"></span
+                  ><span class="comment">#always-blank line (?)</span>
+                </li>
+                <li>
+                  0;Action;RequirementType;...;RequirementType
+                  <span class="comment"
+                    >#static 0 (?); response action code if rule matches (e.g.,
+                    Keep, Sell, etc.); zero or more requirement-type codes</span
+                  >
+                </li>
+                <li>
+                  KeepNumber
+                  <span class="comment"
+                    >#line is only present if Action is &lsquo;Keep #&rsquo;;
+                    integer number of items to keep</span
+                  >
+                </li>
+                <li>
+                  [<span class="keyword">Requirements</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define all requirements for
+                    listed requirement type codes, respectively</span
+                  >
+                </li>
+              </ol>
+            </div>
+            <p>
+              The possible <span class="code-text">Action</span> codes are
+              listed in
+              <a href="#table--action-codes" class="internal-link"></a>
+              and <span class="code-text">RequirementType</span> codes in
+              <a href="#table--req-type-codes" class="internal-link"></a>.
+              Requirements&rsquo; data-contents vary in format, as specified in
+              <a href="#sec--requirements" class="internal-link"></a>.
+            </p>
+            <p><span class="code-text">SalvageRules</span> are:</p>
+            <div class="utl-box">
+              <ol>
+                <li>
+                  SalvageType
+                  <span class="comment"
+                    >#integer code specifying type of salvage</span
+                  >
+                </li>
+                <li>
+                  CombinationRule
+                  <span class="comment"
+                    >#string; combo rule for this salvage type; e.g., 1-7,8-9,10
+                    or 85000</span
+                  >
+                </li>
+              </ol>
+            </div>
+            <p>
+              The <span class="code-text">SalvageRules</span> are strictly split
+              into a list of all workmanship-combo rules followed by a list of
+              all value-combo rules; they are not mixed. Possible
+              <span class="code-text">SalvageType</span> codes are listed in
+              <a href="#table--salvage-type-codes" class="internal-link"></a>.
+              See
+              <a href="#sec--salvage-rules" class="internal-link"></a>
+              for more on <span class="code-text">SalvageRules</span>.
+            </p>
+          </li>
+
+          <li id="sec--actions">
+            <p>Actions</p>
+            <p>
+              Loot rules support five different response actions, listed in
+              <a href="#table--action-codes" class="internal-link"></a>
+              below. They indicate that any item matching the loot rule should
+              be kept, salvaged, sold, read (e.g., a magic scroll), or kept but
+              only up to a designated item-count cap.
+            </p>
+            <table id="table--action-codes" class="sort-table">
+              <caption></caption>
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </li>
+
+          <li id="sec--requirements">
+            <p>Requirements (Menu-ordering)</p>
+            <p>
+              Loot rules include zero or more Requirements, all of which must be
+              satisfied (except perhaps &lsquo;Enable/Disable&rsquo;) for a rule
+              to evaluate to true and thereby trigger its selected action in
+              response. Requirements vary in format, as specified in this
+              section. For a <span class="code-text">RequirementType</span> code
+              summary, see
+              <a href="#table--req-type-codes" class="internal-link"></a> below.
+            </p>
+            <p class="dark-red">
+              Red coloration of items throughout this document indicates that
+              contacting the server is required for actual evaluation; items in
+              black may or may not require this, depending on whether they are
+              acted-on keys/fields (don&rsquo;t) or requirement-types (might,
+              depending upon the key/field acted on).
+            </p>
+
+            <table id="table--req-type-codes" class="sort-table">
+              <caption></caption>
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+
+            <ol class="sec subsec-list">
+              <li id="subsec--enable-disable">
+                <p>
+                  Enable/Disable (9999; rule prefixes &lsquo;<span
+                    class="code-text"
+                    >ON:</span
+                  >&rsquo; and &lsquo;<span class="code-text">NO:</span>&rsquo;)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 9999 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      Status
+                      <span class="comment"
+                        >#boolean; true=DISabled or false=ENabled</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  This is the outlier requirement type in that it is unlike any
+                  of the others. It merely enables or disables an entire rule if
+                  it is present in that rule. Note that &lsquo;true&rsquo; means
+                  DISable, and &lsquo;false&rsquo; means ENable. This
+                  requirement may appear anywhere in the requirements list and
+                  may even appear multiple times, but note that any single
+                  &lsquo;true&rsquo; (disable) overrides all other occurrences,
+                  regardless of their value. (<span class="code-text"
+                    >myutilootor</span
+                  >
+                  reduces this requirement to a single representation, and in an
+                  outlier way as well: it specifies it via the &lsquo;<span
+                    class="code-text"
+                    >ON:</span
+                  >&rsquo; (enable) and &lsquo;<span class="code-text">NO:</span
+                  >&rsquo; (disable) rule prefixes.)
+                </p>
+              </li>
+
+              <li id="subsec--armor-type-similar-color">
+                <p>
+                  Armor Type Similar Color (15;
+                  <span class="code-text">ArmorColorLike</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 15 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      RedValue <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      GreenValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      BlueValue <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffHue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffSV <span class="comment">#double in [0,1]</span>
+                    </li>
+                    <li>
+                      ArmorTypeAndColorRegion
+                      <span class="comment"
+                        >#string from specific string set</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  <span class="code-text">ArmorTypeAndColorRegion</span> may be
+                  any of the strings in
+                  <a
+                    href="#table--armor-type-and-color-region-strings"
+                    class="internal-link"
+                  ></a>
+                  below. (Yes, these exact strings are what actually appear in
+                  .utl files, rather than integer codes representing them.)
+                </p>
+                <table
+                  id="table--armor-type-and-color-region-strings"
+                  class="sort-table"
+                >
+                  <caption></caption>
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </li>
+
+              <li id="subsec--base-skill-range">
+                <p>
+                  Base Skill Range (1004;
+                  <span class="code-text">BaseSkillRange</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1004 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      ActsOnID
+                      <span class="comment"
+                        >#integer code for a skill type</span
+                      >
+                    </li>
+                    <li>
+                      MinimumBaseSkill
+                      <span class="comment">#integer</span>
+                    </li>
+                    <li>
+                      MaximumBaseSkill <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  <span class="code-text">ActsOnID</span> may be any of the
+                  codes in
+                  <a href="#table--skill-codes" class="internal-link"></a>
+                  below.
+                </p>
+                <table id="table--skill-codes" class="sort-table">
+                  <caption></caption>
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </li>
+
+              <li id="subsec--buffed-double-value-key-ge">
+                <p>
+                  <span class="dark-red">Buffed Double Value Key &gt;=</span>
+                  (2005; <span class="code-text">DKeyBuffedGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2005 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server because
+                  all valid acted-on keys/fields require that. See
+                  <a
+                    href="#subsubsec--double-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--buffed-long-value-key-ge">
+                <p>
+                  <span class="dark-red">Buffed Long Value Key &gt;=</span>
+                  (2003; <span class="code-text">LKeyBuffedGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2003 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server because
+                  all valid acted-on keys/fields require that. See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--calced-buffed-median-damage-ge">
+                <p>
+                  <span class="dark-red"
+                    >Calced Buffed Median Damage &gt;=</span
+                  >
+                  (2000; <span class="code-text">CalcedBuffedMedianDmgGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2000 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CalcedBuffedMedian
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--calced-buffed-missile-damage-ge">
+                <p>
+                  <span class="dark-red"
+                    >Calced Buffed Missile Damage &gt;=</span
+                  >
+                  (2001;
+                  <span class="code-text">CalcedBuffedMissileDmgGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2001 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CalcedBuffedMissile
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--calced-buffed-tinked-dmg-ge">
+                <p>
+                  <span class="dark-red">Calced Buffed Tinked Dmg &gt;=</span>
+                  (2006;
+                  <span class="code-text">CalcedBuffedTinkDmgGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2006 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CalcedBuffedTinked
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--calced-buffed-tinked-target">
+                <p>
+                  <span class="dark-red">Calced Buffed Tinked Target</span>
+                  (2008;
+                  <span class="code-text">CalcedBuffedTinkTarget</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2008 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      TargetCalcedBuffed
+                      <span class="comment">#double</span>
+                    </li>
+                    <li>
+                      TargetBuffedMelee
+                      <span class="comment">#double</span>
+                    </li>
+                    <li>
+                      TargetBuffedAttackBonus
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--calced-total-ratings-ge">
+                <p>
+                  <span class="dark-red">Calced Total Ratings &gt;=</span>
+                  (2007;
+                  <span class="code-text">CalcedTotalRatingsGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2007 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CalcedTotalRatings
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--character-buffed-skill-ge">
+                <p>
+                  Character Buffed Skill &gt;= (1000;
+                  <span class="code-text">BuffedSkillGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1000 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      BuffedSkillValue
+                      <span class="comment">#integer (?)</span>
+                    </li>
+                    <li>
+                      ActsOnID
+                      <span class="comment"
+                        >#integer code for a skill type</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  <span class="code-text">ActsOnID</span> may be any of the
+                  codes in
+                  <a href="#table--skill-codes" class="internal-link"></a>.
+                </p>
+              </li>
+
+              <li id="subsec--character-level-le">
+                <p>
+                  Character Level &lt;= (1003;
+                  <span class="code-text">CharLevelLE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1003 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CharacterLevel
+                      <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--character-level-ge">
+                <p>
+                  Character Level &gt;= (1002;
+                  <span class="code-text">CharLevelGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1002 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      CharacterLevel
+                      <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--damage-percentage-ge">
+                <p>
+                  Damage Percentage &gt;= (6;
+                  <span class="code-text">DmgPercentGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 6 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      DamagePercent
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--double-value-key-le">
+                <p>
+                  Double Value Key &lt;= (4;
+                  <span class="code-text">DKeyLE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 4 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--double-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--double-value-key-ge">
+                <p>
+                  Double Value Key &gt;= (5;
+                  <span class="code-text">DKeyGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 5 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--double-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--free-main-pack-slots-ge">
+                <p>
+                  Free Main Pack Slots &gt;= (1001;
+                  <span class="code-text">EmptyMainPackSlotsGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1001 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      EmptySlots
+                      <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--long-value-key-ne">
+                <p>
+                  Long Value Key != (13;
+                  <span class="code-text">LKeyNE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 13 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--long-value-key-le">
+                <p>
+                  Long Value Key &lt;= (2;
+                  <span class="code-text">LKeyLE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 2 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--long-value-key-e">
+                <p>
+                  Long Value Key == (12;
+                  <span class="code-text">LKeyE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 12 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--long-value-key-ge">
+                <p>
+                  Long Value Key &gt;= (3;
+                  <span class="code-text">LKeyGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 3 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--long-value-key-has-flags">
+                <p>
+                  Long Value Key Has Flags (11;
+                  <span class="code-text">LKeyFlags</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 11 (in
+                  rule&rsquo;s semicolon-delimited list). See
+                  <a
+                    href="#subsubsec--long-value-key-requirements"
+                    class="internal-link"
+                  ></a>
+                  for more.
+                </p>
+              </li>
+
+              <li id="subsec--minimum-damage-ge">
+                <p>
+                  <span class="dark-red">Minimum Damage &gt;=</span>
+                  (10;
+                  <span class="code-text">MinDmgGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 10 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      MinimumDamage
+                      <span class="comment">#double</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--object-class">
+                <p>ObjectClass (7; <span class="code-text">ObjClass</span>)</p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 7 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      ObjectClassID
+                      <span class="comment">#integer code</span>
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  <span class="code-text">ObjectClassID</span> may be any of the
+                  codes in
+                  <a
+                    href="#table--object-class-codes"
+                    class="internal-link"
+                  ></a>
+                  below.
+                </p>
+                <table id="table--object-class-codes" class="sort-table">
+                  <caption></caption>
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </li>
+
+              <li id="subsec--one-similar-color">
+                <p>
+                  One Similar Color (14;
+                  <span class="code-text">ColorLike</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 14 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      RedValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      GreenValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      BlueValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffHue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffSV
+                      <span class="comment">#double in [0,1]</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--slot-exact-palette">
+                <p>
+                  Slot Exact Palette (17;
+                  <span class="code-text">SlotPalette</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 17 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      PaletteEntryNumber
+                      <span class="comment">#integer (?)</span>
+                    </li>
+                    <li>
+                      PaletteID
+                      <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--slot-similar-color">
+                <p>
+                  Slot Similar Color (16;
+                  <span class="code-text">SlotColorLike</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 16 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      RedValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      GreenValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      BlueValue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffHue
+                      <span class="comment">#integer in [0,255]</span>
+                    </li>
+                    <li>
+                      MaxDiffSV
+                      <span class="comment">#double in [0,1]</span>
+                    </li>
+                    <li>
+                      PaletteEntryNumber
+                      <span class="comment">#integer (?)</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--spell-count-ge">
+                <p>
+                  <span class="dark-red">Spell Count &gt;=</span>
+                  (8;
+                  <span class="code-text">NSpellsGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 8 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      SpellCount
+                      <span class="comment">#integer</span>
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--spell-match-and-count">
+                <p>
+                  <span class="dark-red">Spell Match and Count</span>
+                  (9;
+                  <span class="code-text">NSpellsRxGE</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 9 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      MatchPattern
+                      <span class="comment"
+                        >#string; regular expression to match against spell
+                        names</span
+                      >
+                    </li>
+                    <li>
+                      DoNotMatchPattern
+                      <span class="comment"
+                        >#string; regular expression to not-match against spell
+                        names</span
+                      >
+                    </li>
+                    <li>
+                      MinimumMatchCount
+                      <span class="comment"
+                        >#integer; must match at least this many spells</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--spell-name-match">
+                <p>
+                  <span class="dark-red">Spell Name Match</span>
+                  (0;
+                  <span class="code-text">SpellRx</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 0 (in
+                  rule&rsquo;s semicolon-delimited list). Hits server. Content
+                  format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      MatchPattern
+                      <span class="comment"
+                        >#string; regular expression to match against spell
+                        names</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+              </li>
+
+              <li id="subsec--string-value-match">
+                <p>
+                  String Value Match (1; <span class="code-text">MatchRx</span>)
+                </p>
+                <p>
+                  <span class="code-text">RequirementType</span> code 1 (in
+                  rule&rsquo;s semicolon-delimited list). Content format:
+                </p>
+                <div class="utl-box">
+                  <ol>
+                    <li>
+                      ByteArrayCount
+                      <span class="comment"
+                        >#integer; byte count from next line through end of req,
+                        incl. newlines</span
+                      >
+                    </li>
+                    <li>
+                      ActsOnID
+                      <span class="comment"
+                        >#integer code for a string field</span
+                      >
+                    </li>
+                    <li>
+                      MatchPattern
+                      <span class="comment"
+                        >#string; regular expression to match against string
+                        field contents</span
+                      >
+                    </li>
+                  </ol>
+                </div>
+                <p>
+                  <span class="code-text">ActsOnID</span> may be any of the
+                  codes in
+                  <a
+                    href="#table--string-value-key-field-codes"
+                    class="internal-link"
+                  ></a>
+                  below.
+                </p>
+                <table
+                  id="table--string-value-key-field-codes"
+                  class="sort-table"
+                >
+                  <caption></caption>
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </li>
+
+              <li id="subsec--grouped-requirement-descriptions">
+                <p>Grouped Requirement Descriptions</p>
+                <p>
+                  There are a couple of Requirement groups, the members of which
+                  are very similar to one another. For brevity, this section
+                  describes two such groups, rather than repeating the same
+                  information for each member Requirement.
+                </p>
+                <ol class="sec subsubsec-list">
+                  <li id="subsubsec--double-value-key-requirements">
+                    <p>Double Value Key Requirements</p>
+                    <p>
+                      A &lsquo;double&rsquo; key refers to a 64-bit
+                      &lsquo;floating point&rsquo;-type (decimal value) data
+                      field in an object&rsquo;s data structure. Since there are
+                      several Requirement variants involving
+                      &lsquo;double&rsquo; fields, they&rsquo;re all grouped
+                      together in this section. With the exception of
+                      &lsquo;Buffed Double Value Key &gt;=&rsquo;, they act on
+                      the same set of possible data fields, which are listed in
+                      <a
+                        href="#table--double-value-key-field-codes"
+                        class="internal-link"
+                      ></a>
+                      below. &lsquo;Buffed Double Value Key &gt;=&rsquo; only
+                      acts on the four fields marked with stars.
+                    </p>
+                    <p>
+                      All the Double Value Key Requirement variants have the
+                      same content format with only their
+                      <span class="code-text">RequirementType</span> codes
+                      differing (in the rule&rsquo;s semicolon-delimited
+                      requirements list), as shown in
+                      <a
+                        href="#table--double-value-key-req-type-codes"
+                        class="internal-link"
+                      ></a>
+                      below.
+                    </p>
+                    <table
+                      id="table--double-value-key-req-type-codes"
+                      class="sort-table"
+                    >
+                      <caption></caption>
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                    <p>
+                      All Double Value Key
+                      <span class="code-text">RequirementType</span>s&rsquo;
+                      data-content formats are as follows:
+                    </p>
+                    <div class="utl-box">
+                      <ol>
+                        <li>
+                          ByteArrayCount
+                          <span class="comment"
+                            >#integer; byte count from next line through end of
+                            req, incl. newlines</span
+                          >
+                        </li>
+                        <li>
+                          DoubleValue
+                          <span class="comment"
+                            >#double value to compare the double field contents
+                            to</span
+                          >
+                        </li>
+                        <li>
+                          ActsOnID
+                          <span class="comment"
+                            >#integer code for a double field</span
+                          >
+                        </li>
+                      </ol>
+                    </div>
+                    <p>
+                      <span class="code-text">ActsOnID</span> may be any of the
+                      codes in
+                      <a
+                        href="#table--double-value-key-field-codes"
+                        class="internal-link"
+                      ></a>
+                      below (except in the case of &lsquo;Buffed Double Value
+                      Key &gt;=&rsquo;, which may only be one of the starred
+                      codes, as noted above).
+                    </p>
+                    <table
+                      id="table--double-value-key-field-codes"
+                      class="sort-table"
+                    >
+                      <caption></caption>
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                  </li>
+
+                  <li id="subsubsec--long-value-key-requirements">
+                    <p>Long Value Key Requirements</p>
+                    <p>
+                      A &lsquo;long&rsquo; key refers to a &lsquo;long
+                      integer&rsquo;-type data field in an object&rsquo;s data
+                      structure. Since there are several Requirement variants
+                      involving &lsquo;long&rsquo; fields, they&rsquo;re all
+                      grouped together in this section. With the exception of
+                      &lsquo;Buffed Long Value Key &gt;=&rsquo;, they all act on
+                      the same set of possible data fields, which are listed in
+                      <a
+                        href="#table--long-value-key-field-codes"
+                        class="internal-link"
+                      ></a>
+                      below. &lsquo;Buffed Long Value Key &gt;=&rsquo; only acts
+                      on the two fields marked with stars.
+                    </p>
+                    <p>
+                      All the Long Value Key Requirement variants have the same
+                      content format with only their
+                      <span class="code-text">RequirementType</span> codes
+                      differing (in the rule&rsquo;s semicolon-delimited
+                      requirements list), as shown in
+                      <a
+                        href="#table--long-value-key-req-type-codes"
+                        class="internal-link"
+                      ></a>
+                      below.
+                    </p>
+                    <table
+                      id="table--long-value-key-req-type-codes"
+                      class="sort-table"
+                    >
+                      <caption></caption>
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                    <p>
+                      All Long Value Key
+                      <span class="code-text">RequirementType</span>s&rsquo;
+                      data-content formats are as follows:
+                    </p>
+                    <div class="utl-box">
+                      <ol>
+                        <li>
+                          ByteArrayCount
+                          <span class="comment"
+                            >#integer; byte count from next line through end of
+                            req, incl. newlines</span
+                          >
+                        </li>
+                        <li>
+                          LongValue
+                          <span class="comment"
+                            >#integer value to compare the long field contents
+                            to</span
+                          >
+                        </li>
+                        <li>
+                          ActsOnID
+                          <span class="comment"
+                            >#integer code for a long field</span
+                          >
+                        </li>
+                      </ol>
+                    </div>
+                    <p>
+                      <span class="code-text">ActsOnID</span> may be any of the
+                      codes in
+                      <a
+                        href="#table--long-value-key-field-codes"
+                        class="internal-link"
+                      ></a>
+                      below (except in the case of &lsquo;Buffed Long Value Key
+                      &gt;=&rsquo;, which may only be one of the starred codes,
+                      as noted above).
+                    </p>
+                    <table
+                      id="table--long-value-key-field-codes"
+                      class="sort-table"
+                    >
+                      <caption></caption>
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+
+          <li id="sec--salvage-rules">
+            <p>Salvage Rules</p>
+            <p>
+              As noted in
+              <a href="#sec--overall-format" class="internal-link"></a>, salvage
+              rules come in two variants: workmanship-based salvage combinations
+              and value-based salvage combinations. All the workmanship rules
+              are listed first, followed by all the value rules. The Classic
+              Loot Editor interface does not facilitate any method of specifying
+              a value-based rule
+              <em>without</em>
+              also including the selected salvage type in the workmanship-based
+              rule list. (Even if you leave that field blank, it is still in
+              that list.)
+            </p>
+            <p>
+              It is important to note that there are some messy behaviors to the
+              Classic Loot Editor that may lead to residual data sticking around
+              in the .utl file even if a salvage rule has been deleted!
+              Specifically, value-based data may not be deleted, even though it
+              should be. (Thus, you may see a file containing a value-based
+              salvage rule for a salvage type that does <em>not</em> have a
+              workmanship-based salvage rule list entry. This should not ever
+              happen if the loot editor behaved according to the
+              <a
+                class="no-dec"
+                href="https://en.wikipedia.org/wiki/Principle_of_least_astonishment"
+                >principle of least surprise</a
+              >. If you play with the application a bit and watch how the file
+              data changes, it&rsquo;s clear that this behavior was not
+              intended. <span class="code-text">myutilootor</span> imposes a
+              more rational behavior on this chaos, issuing warnings where
+              warranted.)
+            </p>
+            <p>
+              To reiterate from
+              <a href="#sec--overall-format" class="internal-link"></a>, the
+              entire salvage-rule portion of the file appears after all the
+              other loot rules, and this section of the file is in the following
+              format:
+            </p>
+
+            <div class="utl-box">
+              <ol>
+                <li>
+                  SalvageCombine <span class="comment">#static string</span>
+                </li>
+                <li>
+                  ByteArrayCount
+                  <span class="comment"
+                    >#byte count of entire following salvage section&rsquo;s
+                    text, incl. newlines</span
+                  >
+                </li>
+                <li>
+                  1
+                  <span class="comment"
+                    >#static 1; unknown meaning (default something?)</span
+                  >
+                </li>
+                <li>
+                  DefaultCombinationText
+                  <span class="comment"
+                    >#salvage&rsquo;s Default Combination rule, e.g., 1-6, 7-8,
+                    9, 10</span
+                  >
+                </li>
+                <li>
+                  SalvageCraftRuleCount
+                  <span class="comment"
+                    >#number of specific-salvage-type workmanship-combination
+                    rules</span
+                  >
+                </li>
+                <li>
+                  [<span class="keyword">SalvageRules</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define SalvageCraftRuleCount
+                    combo rules</span
+                  >
+                </li>
+                <li>
+                  SalvageValueRuleCount
+                  <span class="comment"
+                    >#number of specific-salvage-type value-combination
+                    rules</span
+                  >
+                </li>
+                <li>
+                  [<span class="keyword">SalvageRules</span>]
+                  <span class="comment"
+                    >#multiple lines; iterated to define SalvageValueRuleCount
+                    combo rules</span
+                  >
+                </li>
+              </ol>
+            </div>
+            <p><span class="code-text">SalvageRules</span> are:</p>
+            <div class="utl-box">
+              <ol>
+                <li>
+                  SalvageType
+                  <span class="comment"
+                    >#integer code specifying type of salvage</span
+                  >
+                </li>
+                <li>
+                  CombinationRule
+                  <span class="comment"
+                    >#string; combo rule for this salvage type; e.g., 1-7,8-9,10
+                    or 85000</span
+                  >
+                </li>
+              </ol>
+            </div>
+            <p>
+              <span class="code-text">SalvageType</span> may be any of the codes
+              in
+              <a href="#table--salvage-type-codes" class="internal-link"></a>
+              below (minus the &lsquo;N/A&rsquo; codes, of course).
+            </p>
+            <table id="table--salvage-type-codes" class="sort-table">
+              <caption></caption>
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </li>
+        </ol>
+
+        <ol class="appendix-list">
+          <li id="appendix-additional-data-tables">
+            <p>Additional Data Tables</p>
+            <p>
+              While this table does not contain data that directly translates to
+              a field or type code, its contents are still useful since they can
+              be input as &lsquo;code&rsquo; values to match, and so it is
+              included here.
+            </p>
+            <table id="table--armor-set-codes" class="sort-table">
+              <caption></caption>
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </body>
+  <script>
+    const tables = {
+      "table--action-codes": {
+        orderBy: 0,
+        orderAsc: true,
+        caption: "Action codes.",
+        head: [
+          "Code",
+          "ActionType (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["1", "Keep", "Keep"],
+          ["2", "Salvage", "Salvage"],
+          ["3", "Sell", "Sell"],
+          ["4", "Read", "Read"],
+          [
+            "10",
+            "Keep <span class='code-text'>#</span>",
+            "<span class='code-text'>Keep #</span> (where <span class='code-text'>#</span> is an integer)",
+          ],
+        ],
+      },
+      "table--req-type-codes": {
+        orderBy: 3,
+        orderAsc: true,
+        caption: "<span class='code-text'>RequirementType</span> codes.",
+        head: [
+          "Code",
+          "<span class='code-text'>RequirementType</span> (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+          "Details",
+        ],
+        data: [
+          [
+            "0",
+            "<span class='dark-red'>Spell Name Match</span>",
+            "SpellRx",
+            "subsec--spell-name-match",
+          ],
+          ["1", "String Value Match", "MatchRx", "subsec--string-value-match"],
+          ["2", "Long Value Key &lt;=", "LKeyLE", "subsec--long-value-key-le"],
+          ["3", "Long Value Key &gt;=", "LKeyGE", "subsec--long-value-key-ge"],
+          [
+            "4",
+            "Double Value Key &lt;=",
+            "DKeyLE",
+            "subsec--double-value-key-le",
+          ],
+          [
+            "5",
+            "Double Value Key &gt;=",
+            "DKeyGE",
+            "subsec--double-value-key-ge",
+          ],
+          [
+            "6",
+            "Damage Percentage &gt;=",
+            "DmgPercentGE",
+            "subsec--damage-percentage-ge",
+          ],
+          ["7", "ObjectClass", "ObjClass", "subsec--object-class"],
+          [
+            "8",
+            "<span class='dark-red'>Spell Count &gt;=</span>",
+            "NSpellsGE",
+            "subsec--spell-count-ge",
+          ],
+          [
+            "9",
+            "<span class='dark-red'>Spell Match and Count</span>",
+            "NSpellsRxGE",
+            "subsec--spell-match-and-count",
+          ],
+          [
+            "10",
+            "<span class='dark-red'>Minimum Damage &gt;=</span>",
+            "MinDmgGE",
+            "subsec--minimum-damage-ge",
+          ],
+          [
+            "11",
+            "Long Value Key Has Flags (?)",
+            "LKeyFlags",
+            "subsec--long-value-key-has-flags",
+          ],
+          ["12", "Long Value Key ==", "LKeyE", "subsec--long-value-key-e"],
+          ["13", "Long Value Key !=", "LKeyNE", "subsec--long-value-key-ne"],
+          ["14", "One Similar Color", "ColorLike", "subsec--one-similar-color"],
+          [
+            "15",
+            "Armor Type Similar Color",
+            "ArmorColorLike",
+            "subsec--armor-type-similar-color",
+          ],
+          [
+            "16",
+            "Slot Similar Color",
+            "SlotColorLike",
+            "subsec--slot-similar-color",
+          ],
+          [
+            "17",
+            "Slot Exact Palette",
+            "SlotPalette",
+            "subsec--slot-exact-palette",
+          ],
+          [
+            "1000",
+            "Character Buffed Skill &gt;=",
+            "BuffedSkillGE",
+            "subsec--character-buffed-skill-ge",
+          ],
+          [
+            "1001",
+            "Free Main Pack Slots &gt;=",
+            "EmptyMainPackSlotsGE",
+            "subsec--free-main-pack-slots-ge",
+          ],
+          [
+            "1002",
+            "Character Level &gt;=",
+            "CharLevelGE",
+            "subsec--character-level-ge",
+          ],
+          [
+            "1003",
+            "Character Level &lt;=",
+            "CharLevelLE",
+            "subsec--character-level-le",
+          ],
+          [
+            "1004",
+            "Base Skill Range",
+            "BaseSkillRange",
+            "subsec--base-skill-range",
+          ],
+          [
+            "2000",
+            "<span class='dark-red'>Calced Buffed Median Damage &gt;=</span>",
+            "CalcedBuffedMedianDmgGE",
+            "subsec--calced-buffed-median-damage-ge",
+          ],
+          [
+            "2001",
+            "<span class='dark-red'>Calced Buffed Missile Damage &gt;=</span>",
+            "CalcedBuffedMissileDmgGE",
+            "subsec--calced-buffed-missile-damage-ge",
+          ],
+          [
+            "2003",
+            "<span class='dark-red'>Buffed Long Value Key &gt;=</span>",
+            "LKeyBuffedGE",
+            "subsec--buffed-long-value-key-ge",
+          ],
+          [
+            "2005",
+            "<span class='dark-red'>Buffed Double Value Key &gt;=</span>",
+            "DKeyBuffedGE",
+            "subsec--buffed-double-value-key-ge",
+          ],
+          [
+            "2006",
+            "<span class='dark-red'>Calced Buffed Tinked Dmg &gt;=</span>",
+            "CalcedBuffedTinkDmgGE",
+            "subsec--calced-buffed-tinked-dmg-ge",
+          ],
+          [
+            "2007",
+            "<span class='dark-red'>Calced Total Ratings &gt;=</span>",
+            "CalcedTotalRatingsGE",
+            "subsec--calced-total-ratings-ge",
+          ],
+          [
+            "2008",
+            "<span class='dark-red'>Calced Buffed Tinked Target (?)</span>",
+            "CalcedBuffedTinkTarget",
+            "subsec--calced-buffed-tinked-target",
+          ],
+          [
+            "9999",
+            "Enable/Disable",
+            "[N/A] (use <span class='code-text'>ON:</span>/<span class='code-text'>NO:</span>)",
+            "subsec--enable-disable",
+          ],
+        ],
+      },
+      "table--armor-type-and-color-region-strings": {
+        orderBy: 0,
+        orderAsc: true,
+        caption:
+          "<span class='code-text'>ArmorTypeAndColorRegion</span> strings.",
+        head: [
+          "<span class='grayed-out'>Menu<span class='code-text'>#</span></span>",
+          "<span class='code-text'>ArmorTypeAndColorRegion</span> (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["<span class='grayed-out'>1</span>", "None", "A_None"],
+          [
+            "<span class='grayed-out'>2</span>",
+            "Amuli Coat (Chest)",
+            "A_Amuli_Coat_Chest",
+          ],
+          [
+            "<span class='grayed-out'>3</span>",
+            "Amuli Coat (Collar/Shoulder)",
+            "A_Amuli_Coat_CollarShoulder",
+          ],
+          [
+            "<span class='grayed-out'>4</span>",
+            "Haebrean Girth (Belt/Scales)",
+            "A_Haebrean_Girth_BeltScales",
+          ],
+          [
+            "<span class='grayed-out'>5</span>",
+            "Haebrean Helm (Base)",
+            "A_Haebrean_Helm_Base",
+          ],
+          [
+            "<span class='grayed-out'>6</span>",
+            "Haebrean Helm (Mask)",
+            "A_Haebrean_Helm_Mask",
+          ],
+          [
+            "<span class='grayed-out'>7</span>",
+            "Haebrean Pauldrons (Base) *",
+            "A_Haebrean_Pauldrons_Base",
+          ],
+          [
+            "<span class='grayed-out'>8</span>",
+            "Haebrean Pauldrons (Ornaments)",
+            "A_Haebrean_Pauldrons_Ornaments",
+          ],
+          [
+            "<span class='grayed-out'>9</span>",
+            "Lorica BP (Veins)",
+            "A_Lorica_BP_Veins",
+          ],
+          [
+            "<span class='grayed-out'>10</span>",
+            "Lorica BP (Base)",
+            "A_Lorica_BP_Base",
+          ],
+          [
+            "<span class='grayed-out'>11</span>",
+            "Lorica BP (Neck/Trim) *",
+            "A_Lorica_BP_NeckTrim",
+          ],
+          [
+            "<span class='grayed-out'>12</span>",
+            "Lorica Legs (Base)",
+            "A_Lorica_Legs_Base",
+          ],
+          [
+            "<span class='grayed-out'>13</span>",
+            "Lorica Legs (Knees/Belt/Crotch) *",
+            "A_Lorica_Legs_KneesBeltCrotch",
+          ],
+          [
+            "<span class='grayed-out'>14</span>",
+            "Lorica Legs (Legs) *",
+            "A_Lorica_Legs_Legs",
+          ],
+          [
+            "<span class='grayed-out'>15</span>",
+            "Nariyid BP (Circle/Lines)",
+            "A_Nariyid_BP_CircleLines",
+          ],
+          [
+            "<span class='grayed-out'>16</span>",
+            "Nariyid BP (Base)",
+            "A_Nariyid_BP_Base",
+          ],
+          [
+            "<span class='grayed-out'>17</span>",
+            "Nariyid BP (Shoulders)",
+            "A_Nariyid_BP_Shoulders",
+          ],
+          [
+            "<span class='grayed-out'>18</span>",
+            "Nariyid Girth (Base) *",
+            "A_Nariyid_Girth_Base",
+          ],
+          [
+            "<span class='grayed-out'>19</span>",
+            "Nariyid Girth (Belt/Lines)",
+            "A_Nariyid_Girth_BeltLines",
+          ],
+          [
+            "<span class='grayed-out'>20</span>",
+            "Nariyid Girth (Ornaments)",
+            "A_Nariyid_Girth_Ornaments",
+          ],
+          [
+            "<span class='grayed-out'>21</span>",
+            "Nariyid Sleeves (Shoulders)",
+            "A_Nariyid_Sleeves_Shoulders",
+          ],
+          [
+            "<span class='grayed-out'>22</span>",
+            "Nariyid Sleeves (Upper Arm)",
+            "A_Nariyid_Sleeves_UpperArm",
+          ],
+          [
+            "<span class='grayed-out'>23</span>",
+            "Nariyid Sleeves (Lower Arm)",
+            "A_Nariyid_Sleeves_LowerArm",
+          ],
+          [
+            "<span class='grayed-out'>24</span>",
+            "Olthoi BP (Base)",
+            "A_Olthoi_BP_Base",
+          ],
+          [
+            "<span class='grayed-out'>25</span>",
+            "Olthoi BP (Veins)",
+            "A_Olthoi_BP_Veins",
+          ],
+          [
+            "<span class='grayed-out'>26</span>",
+            "Olthoi Alduressa Legs (Girth: Base)",
+            "A_Olthoi_Alduressa_Legs_GirthBase",
+          ],
+          [
+            "<span class='grayed-out'>27</span>",
+            "Olthoi Alduressa Legs (Girth: Lines)",
+            "A_Olthoi_Alduressa_Legs_GirthLines",
+          ],
+          [
+            "<span class='grayed-out'>28</span>",
+            "Olthoi Alduressa Legs (Legs: Lines)",
+            "A_Olthoi_Alduressa_Legs_LegsLines",
+          ],
+          [
+            "<span class='grayed-out'>29</span>",
+            "Olthoi Amuli Coat (Base) *",
+            "A_Olthoi_Amuli_Coat_Base",
+          ],
+          [
+            "<span class='grayed-out'>30</span>",
+            "Olthoi Amuli Coat (Trim)",
+            "A_Olthoi_Amuli_Coat_Trim",
+          ],
+          [
+            "<span class='grayed-out'>31</span>",
+            "Olthoi Amuli Coat (Shoulders)",
+            "A_Olthoi_Amuli_Coat_Shoulders",
+          ],
+          [
+            "<span class='grayed-out'>32</span>",
+            "Olthoi Amuli Legs (Trim)",
+            "A_Olthoi_Amuli_Legs_Trim",
+          ],
+          [
+            "<span class='grayed-out'>33</span>",
+            "Olthoi Koujia Kabuton (Base)",
+            "A_Olthoi_Koujia_Kabuton_Base",
+          ],
+          [
+            "<span class='grayed-out'>34</span>",
+            "Olthoi Koujia Kabuton (Horns)",
+            "A_Olthoi_Koujia_Kabuton_Horns",
+          ],
+          [
+            "<span class='grayed-out'>35</span>",
+            "Olthoi Koujia Legs (Base)",
+            "A_Olthoi_Koujia_Legs_Base",
+          ],
+          [
+            "<span class='grayed-out'>36</span>",
+            "Olthoi Koujia Legs (Sides/Shins)",
+            "A_Olthoi_Koujia_Legs_SidesShins",
+          ],
+          [
+            "<span class='grayed-out'>37</span>",
+            "Scalemail Cuirass (Base)",
+            "A_Scalemail_Cuirass_Base",
+          ],
+          [
+            "<span class='grayed-out'>38</span>",
+            "Scalemail Cuirass (Bumps)",
+            "A_Scalemail_Cuirass_Bumps",
+          ],
+          [
+            "<span class='grayed-out'>39</span>",
+            "Scalemail Cuirass (Belt)",
+            "A_Scalemail_Cuirass_Belt",
+          ],
+          [
+            "<span class='grayed-out'>40</span>",
+            "Tenassa Legs (Line at Side)",
+            "A_Tenassa_Legs_LineAtSide",
+          ],
+          [
+            "<span class='grayed-out'>41</span>",
+            "Tenassa Legs (Base)",
+            "A_Tenassa_Legs_Base",
+          ],
+          [
+            "<span class='grayed-out'>42</span>",
+            "Tenassa Legs (Hilight)",
+            "A_Tenassa_Legs_Highlight",
+          ],
+          [
+            "<span class='grayed-out'>43</span>",
+            "Tenassa BP (Shoulders)",
+            "A_Tenassa_BP_Shoulders",
+          ],
+          [
+            "<span class='grayed-out'>44</span>",
+            "Tenassa BP (Base)",
+            "A_Tenassa_BP_Base",
+          ],
+          [
+            "<span class='grayed-out'>45</span>",
+            "Yoroi Cuirass (Base)",
+            "A_Yoroi_Cuirass_Base",
+          ],
+          [
+            "<span class='grayed-out'>46</span>",
+            "Yoroi Cuirass (Belt)",
+            "A_Yoroi_Cuirass_Belt",
+          ],
+          [
+            "<span class='grayed-out'>47</span>",
+            "Yoroi Girth (Base)",
+            "A_Yoroi_Girth_Base",
+          ],
+          [
+            "<span class='grayed-out'>48</span>",
+            "Yoroi Girth (Belt)",
+            "A_Yoroi_Girth_Belt",
+          ],
+        ],
+      },
+      "table--skill-codes": {
+        orderBy: 1,
+        orderAsc: true,
+        caption: "Skill codes (<span class='code-text'>ActsOnID</span>s).",
+        head: [
+          "Code",
+          "Skill (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["38", "Alchemy", "S_Alchemy"],
+          ["14", "ArcaneLore", "S_ArcaneLore"],
+          ["29", "ArmorTinkering", "S_ArmorTinkering"],
+          ["27", "AssessCreature", "S_AssessCreature"],
+          ["19", "AssessPerson", "S_AssessPerson"],
+          ["1", "Axe <span class='grayed-out'>(deprecated)</span>", "S_Axe"],
+          ["2", "Bow <span class='grayed-out'>(deprecated)</span>", "S_Bow"],
+          ["39", "Cooking", "S_Cooking"],
+          ["31", "CreatureEnchantment", "S_CreatureEnchantment"],
+          [
+            "3",
+            "Crossbow <span class='grayed-out'>(deprecated)</span>",
+            "S_Crossbow",
+          ],
+          [
+            "4",
+            "Dagger <span class='grayed-out'>(deprecated)</span>",
+            "S_Dagger",
+          ],
+          ["20", "Deception", "S_Deception"],
+          ["52", "DirtyFighting", "S_DirtyFighting"],
+          ["49", "DualWield", "S_DualWield"],
+          ["46", "FinesseWeapons", "S_FinesseWeapons"],
+          ["37", "Fletching", "S_Fletching"],
+          [
+            "42",
+            "Gearcraft <span class='grayed-out'>(deprecated)</span>",
+            "S_Gearcraft",
+          ],
+          ["21", "Healing", "S_Healing"],
+          ["44", "HeavyWeapons", "S_HeavyWeapons"],
+          ["32", "ItemEnchantment", "S_ItemEnchantment"],
+          ["18", "ItemTinkering", "S_ItemTinkering"],
+          ["22", "Jump", "S_Jump"],
+          ["35", "Leadership", "S_Leadership"],
+          ["33", "LifeMagic", "S_LifeMagic"],
+          ["45", "LightWeapons", "S_LightWeapons"],
+          ["23", "Lockpick", "S_Lockpick"],
+          ["36", "Loyalty", "S_Loyalty"],
+          ["5", "Mace <span class='grayed-out'>(deprecated)</span>", "S_Mace"],
+          ["15", "MagicDefense", "S_MagicDefense"],
+          ["30", "MagicItemTinkering", "S_MagicItemTinkering"],
+          ["16", "ManaConversion", "S_ManaConversion"],
+          ["6", "MeleeDefense", "S_MeleeDefense"],
+          ["7", "MissileDefense", "S_MissileDefense"],
+          ["47", "MissileWeapons", "S_MissileWeapons"],
+          ["50", "Recklessness", "S_Recklessness"],
+          ["24", "Run", "S_Run"],
+          ["40", "Salvaging", "S_Salvaging"],
+          ["48", "Shield", "S_Shield"],
+          ["51", "SneakAttack", "S_SneakAttack"],
+          [
+            "9",
+            "Spear <span class='grayed-out'>(deprecated)</span>",
+            "S_Spear",
+          ],
+          [
+            "10",
+            "Staff <span class='grayed-out'>(deprecated)</span>",
+            "S_Staff",
+          ],
+          ["54", "Summoning", "S_Summoning"],
+          [
+            "11",
+            "Sword <span class='grayed-out'>(deprecated)</span>",
+            "S_Sword",
+          ],
+          [
+            "12",
+            "ThrownWeapons <span class='grayed-out'>(deprecated)</span>",
+            "S_ThrownWeapons",
+          ],
+          ["41", "TwoHandedCombat", "S_TwoHandedCombat"],
+          [
+            "13",
+            "Unarmed <span class='grayed-out'>(deprecated)</span>",
+            "S_Unarmed",
+          ],
+          ["43", "VoidMagic", "S_VoidMagic"],
+          ["34", "WarMagic", "S_WarMagic"],
+          ["28", "WeaponTinkering", "S_WeaponTinkering"],
+        ],
+      },
+      "table--object-class-codes": {
+        orderBy: 1,
+        orderAsc: true,
+        caption:
+          "ObjectClass codes (<span class='code-text'>ObjectClassID</span>s).",
+        head: [
+          "Code",
+          "ObjectClass (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["2", "Armor", "C_Armor"],
+          ["19", "BaseAlchemy", "C_BaseAlchemy"],
+          ["18", "BaseCooking", "C_BaseCooking"],
+          ["20", "BaseFletching", "C_BaseFletching"],
+          ["33", "Book", "C_Book"],
+          ["32", "Bundle", "C_Bundle"],
+          ["3", "Clothing", "C_Clothing"],
+          ["10", "Container", "C_Container"],
+          ["27", "Corpse", "C_Corpse"],
+          ["22", "CraftedAlchemy", "C_CraftedAlchemy"],
+          ["21", "CraftedCooking", "C_CraftedCooking"],
+          ["23", "CraftedFletching", "C_CraftedFletching"],
+          ["26", "Door", "C_Door"],
+          ["38", "Foci", "C_Foci"],
+          ["6", "Food", "C_Food"],
+          ["11", "Gem", "C_Gem"],
+          ["29", "HealingKit", "C_HealingKit"],
+          ["36", "Housing", "C_Housing"],
+          ["4", "Jewelry", "C_Jewelry"],
+          ["34", "Journal", "C_Journal"],
+          ["13", "Key", "C_Key"],
+          ["28", "Lifestone", "C_Lifestone"],
+          ["30", "Lockpick", "C_Lockpick"],
+          ["16", "ManaStone", "C_ManaStone"],
+          ["1", "MeleeWeapon", "C_MeleeWeapon"],
+          ["8", "Misc", "C_Misc"],
+          ["9", "MissileWeapon", "C_MissileWeapon"],
+          ["7", "Money", "C_Money"],
+          ["5", "Monster", "C_Monster"],
+          ["37", "Npc", "C_Npc"],
+          ["17", "Plant", "C_Plant"],
+          ["24", "Player", "C_Player"],
+          ["14", "Portal", "C_Portal"],
+          ["39", "Salvage", "C_Salvage"],
+          ["42", "Scroll", "C_Scroll"],
+          ["41", "Services", "C_Services"],
+          ["35", "Sign", "C_Sign"],
+          ["12", "SpellComponent", "C_SpellComponent"],
+          ["15", "TradeNote", "C_TradeNote"],
+          ["0", "Unknown", "C_Unknown"],
+          ["40", "Ust", "C_Ust"],
+          ["25", "Vendor", "C_Vendor"],
+          ["31", "WandStaffOrb", "C_WandStaffOrb"],
+        ],
+      },
+      "table--string-value-key-field-codes": {
+        orderBy: 1,
+        orderAsc: true,
+        caption:
+          "String Value Key field codes (<span class='code-text'>ActsOnID</span>s).",
+        head: [
+          "Code",
+          "StringValueKey (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["43", "<span class='dark-red'>DateBorn</span>", "M_DateBorn"],
+          [
+            "10",
+            "<span class='dark-red'>FellowshipName</span>",
+            "M_FellowshipName",
+          ],
+          [
+            "16",
+            "<span class='dark-red'>FullDescription</span>",
+            "M_FullDescription",
+          ],
+          ["40", "<span class='dark-red'>ImbuedBy</span>", "M_ImbuedBy"],
+          ["8", "<span class='dark-red'>InscribedBy</span>", "M_InscribedBy"],
+          ["7", "<span class='dark-red'>Inscription</span>", "M_Inscription"],
+          [
+            "39",
+            "<span class='dark-red'>LastTinkeredBy</span>",
+            "M_LastTinkeredBy",
+          ],
+          ["21", "<span class='dark-red'>MonarchName</span>", "M_MonarchName"],
+          ["1", "Name", "M_Name"],
+          [
+            "25",
+            "<span class='dark-red'>OnlyActivatedBy</span>",
+            "M_OnlyActivatedBy",
+          ],
+          ["35", "<span class='dark-red'>Patron</span>", "M_Patron"],
+          [
+            "38",
+            "<span class='dark-red'>PortalDestination</span>",
+            "M_PortalDestination",
+          ],
+          ["184549376", "SecondaryName", "M_SecondaryName"],
+          [
+            "15",
+            "<span class='dark-red'>SimpleDescription</span>",
+            "M_SimpleDescription",
+          ],
+          ["5", "<span class='dark-red'>Title</span>", "M_Title"],
+          [
+            "14",
+            "<span class='dark-red'>UsageInstructions</span>",
+            "M_UsageInstructions",
+          ],
+        ],
+      },
+      "table--double-value-key-req-type-codes": {
+        orderBy: 0,
+        orderAsc: true,
+        caption:
+          "Double Value Key <span class='code-text'>RequirementType</span> codes.",
+        head: [
+          "Code",
+          "<span class='code-text'>RequirementType</span> (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["4", "Double Value Key &lt;=", "DKeyLE"],
+          ["5", "Double Value Key &gt;=", "DKeyGE"],
+          [
+            "2005",
+            "<span class='dark-red'>Buffed Double Value Key &gt;=</span>",
+            "DKeyBuffedGE",
+          ],
+        ],
+      },
+      "table--double-value-key-field-codes": {
+        orderBy: 2,
+        orderAsc: true,
+        caption:
+          "Double Value Key field codes (<span class='code-text'>ActsOnID</span>s).",
+        head: [
+          "",
+          "Code",
+          "DoubleValueKey (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          [
+            "",
+            "167772163",
+            "<span class='dark-red'>AcidProt</span>",
+            "D_AcidProt",
+          ],
+          ["", "167772168", "ApproachDistance", "D_ApproachDistance"],
+          [
+            "&#9734;",
+            "167772172",
+            "<span class='dark-red'>AttackBonus</span>",
+            "D_AttackBonus",
+          ],
+          [
+            "",
+            "167772162",
+            "<span class='dark-red'>BludgeonProt</span>",
+            "D_BludgeonProt",
+          ],
+          [
+            "",
+            "167772166",
+            "<span class='dark-red'>ColdProt</span>",
+            "D_ColdProt",
+          ],
+          [
+            "",
+            "167772174",
+            "<span class='dark-red'>DamageBonus</span>",
+            "D_DamageBonus",
+          ],
+          [
+            "&#9734;",
+            "152",
+            "<span class='dark-red'>ElementalDamageVersus</span>",
+            "D_ElementalDamageVersus",
+          ],
+          [
+            "",
+            "167772165",
+            "<span class='dark-red'>FireProt</span>",
+            "D_FireProt",
+          ],
+          [
+            "",
+            "167772167",
+            "<span class='dark-red'>Heading</span>",
+            "D_Heading",
+          ],
+          [
+            "",
+            "100",
+            "<span class='dark-red'>HealingKitRestoreBonus</span>",
+            "D_HealingKitRestoreBonus",
+          ],
+          [
+            "",
+            "167772164",
+            "<span class='dark-red'>LightningProt</span>",
+            "D_LightningProt",
+          ],
+          [
+            "",
+            "150",
+            "<span class='dark-red'>MagicDBonus</span>",
+            "D_MagicDBonus",
+          ],
+          [
+            "&#9734;",
+            "144",
+            "<span class='dark-red'>ManaCBonus</span>",
+            "D_ManaCBonus",
+          ],
+          [
+            "",
+            "5",
+            "<span class='dark-red'>ManaRateOfChange</span>",
+            "D_ManaRateOfChange",
+          ],
+          [
+            "",
+            "137",
+            "<span class='dark-red'>ManaStoneChanceDestruct</span>",
+            "D_ManaStoneChanceDestruct",
+          ],
+          [
+            "",
+            "87",
+            "<span class='dark-red'>ManaTransferEfficiency</span>",
+            "D_ManaTransferEfficiency",
+          ],
+          [
+            "&#9734;",
+            "29",
+            "<span class='dark-red'>MeleeDefenseBonus</span>",
+            "D_MeleeDefenseBonus",
+          ],
+          [
+            "",
+            "149",
+            "<span class='dark-red'>MissileDBonus</span>",
+            "D_MissileDBonus",
+          ],
+          [
+            "",
+            "167772161",
+            "<span class='dark-red'>PierceProt</span>",
+            "D_PierceProt",
+          ],
+          ["", "167772173", "<span class='dark-red'>Range</span>", "D_Range"],
+          ["", "167772169", "SalvageWorkmanship", "D_SalvageWorkmanship"],
+          ["", "167772170", "<span class='dark-red'>Scale</span>", "D_Scale"],
+          [
+            "",
+            "167772160",
+            "<span class='dark-red'>SlashProt</span>",
+            "D_SlashProt",
+          ],
+          [
+            "",
+            "167772171",
+            "<span class='dark-red'>Variance</span>",
+            "D_Variance",
+          ],
+        ],
+      },
+      "table--long-value-key-req-type-codes": {
+        orderBy: 0,
+        orderAsc: true,
+        caption:
+          "Long Value Key <span class='code-text'>RequirementType</span> codes.",
+        head: [
+          "Code",
+          "<span class='code-text'>RequirementType</span> (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["2", "Long Value Key &lt;=", "LKeyLE"],
+          ["3", "Long Value Key &gt;=", "LKeyGE"],
+          ["11", "Long Value Key Has Flags", "LKeyFlags"],
+          ["12", "Long Value Key ==", "LKeyE"],
+          ["13", "Long Value Key !=", "LKeyNE"],
+          [
+            "2003",
+            "<span class='dark-red'>Buffed Long Value Key &gt;=</span>",
+            "LKeyBuffedGE",
+          ],
+        ],
+      },
+      "table--long-value-key-field-codes": {
+        orderBy: 2,
+        orderAsc: true,
+        caption:
+          "Long Value Key field codes (<span class='code-text'>ActsOnID</span>s).",
+        head: [
+          "",
+          "Code",
+          "LongValueKey (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          [
+            "",
+            "176",
+            "<span class='dark-red'>ActivationReqSkillId</span>",
+            "L_ActivationReqSkillId",
+          ],
+          [
+            "",
+            "218103848",
+            "<span class='dark-red'>ActiveSpellCount</span>",
+            "L_ActiveSpellCount",
+          ],
+          [
+            "",
+            "90",
+            "<span class='dark-red'>AffectsVitalAmt</span>",
+            "L_AffectsVitalAmt",
+          ],
+          [
+            "",
+            "89",
+            "<span class='dark-red'>AffectsVitalId</span>",
+            "L_AffectsVitalId",
+          ],
+          ["", "125", "<span class='dark-red'>Age</span>", "L_Age"],
+          [
+            "&#9734;",
+            "28",
+            "<span class='dark-red'>ArmorLevel</span>",
+            "L_ArmorLevel",
+          ],
+          [
+            "",
+            "265",
+            "<span class='dark-red'>ArmorSetID</span>",
+            "L_ArmorSetID",
+          ],
+          [
+            "",
+            "218103816",
+            "<span class='dark-red'>AssociatedSpell</span>",
+            "L_AssociatedSpell",
+          ],
+          ["", "114", "<span class='dark-red'>Attuned</span>", "L_Attuned"],
+          ["", "218103835", "Behavior", "L_Behavior"],
+          ["", "33", "<span class='dark-red'>Bonded</span>", "L_Bonded"],
+          ["", "5", "<span class='dark-red'>Burden</span>", "L_Burden"],
+          ["", "218103834", "Category", "L_Category"],
+          [
+            "",
+            "352",
+            "<span class='dark-red'>CloakChanceType</span>",
+            "L_CloakChanceType",
+          ],
+          ["", "218103810", "Container", "L_Container"],
+          [
+            "",
+            "167",
+            "<span class='dark-red'>CooldownSeconds</span>",
+            "L_CooldownSeconds",
+          ],
+          ["", "218103821", "Coverage", "L_Coverage"],
+          ["", "218103832", "CreateFlags1", "L_CreateFlags1"],
+          ["", "218103833", "CreateFlags2", "L_CreateFlags2"],
+          [
+            "",
+            "25",
+            "<span class='dark-red'>CreatureLevel</span>",
+            "L_CreatureLevel",
+          ],
+          [
+            "",
+            "374",
+            "<span class='dark-red'>CritDamRating</span>",
+            "L_CritDamRating",
+          ],
+          [
+            "",
+            "375",
+            "<span class='dark-red'>CritDamResistRating</span>",
+            "L_CritDamResistRating",
+          ],
+          [
+            "",
+            "372",
+            "<span class='dark-red'>CritRating</span>",
+            "L_CritRating",
+          ],
+          [
+            "",
+            "373",
+            "<span class='dark-red'>CritResistRating</span>",
+            "L_CritResistRating",
+          ],
+          [
+            "",
+            "107",
+            "<span class='dark-red'>CurrentMana</span>",
+            "L_CurrentMana",
+          ],
+          [
+            "",
+            "218103841",
+            "<span class='dark-red'>DamageType</span>",
+            "L_DamageType",
+          ],
+          ["", "370", "<span class='dark-red'>DamRating</span>", "L_DamRating"],
+          [
+            "",
+            "371",
+            "<span class='dark-red'>DamResistRating</span>",
+            "L_DamResistRating",
+          ],
+          [
+            "",
+            "98",
+            "<span class='dark-red'>DateOfBirth</span>",
+            "L_DateOfBirth",
+          ],
+          ["", "43", "<span class='dark-red'>Deaths</span>", "L_Deaths"],
+          [
+            "",
+            "172",
+            "<span class='dark-red'>DescriptionFormat</span>",
+            "L_DescriptionFormat",
+          ],
+          [
+            "",
+            "204",
+            "<span class='dark-red'>ElementalDmgBonus</span>",
+            "L_ElementalDmgBonus",
+          ],
+          ["", "218103822", "EquipableSlots", "L_EquipableSlots"],
+          ["", "10", "EquippedSlots", "L_EquippedSlots"],
+          [
+            "",
+            "218103840",
+            "<span class='dark-red'>EquipSkill</span>",
+            "L_EquipSkill",
+          ],
+          ["", "218103823", "EquipType", "L_EquipType"],
+          [
+            "",
+            "192",
+            "<span class='dark-red'>FishingSkill</span>",
+            "L_FishingSkill",
+          ],
+          ["", "218103831", "<span class='dark-red'>Flags</span>", "L_Flags"],
+          [
+            "",
+            "177",
+            "<span class='dark-red'>GemSettingQty</span>",
+            "L_GemSettingQty",
+          ],
+          [
+            "",
+            "178",
+            "<span class='dark-red'>GemSettingType</span>",
+            "L_GemSettingType",
+          ],
+          ["", "113", "<span class='dark-red'>Gender</span>", "L_Gender"],
+          [
+            "",
+            "376",
+            "<span class='dark-red'>HealBoostRating</span>",
+            "L_HealBoostRating",
+          ],
+          ["", "188", "<span class='dark-red'>Heritage</span>", "L_Heritage"],
+          ["", "218103828", "HookMask", "L_HookMask"],
+          [
+            "",
+            "218103829",
+            "<span class='dark-red'>HookType</span>",
+            "L_HookType",
+          ],
+          [
+            "",
+            "218103827",
+            "<span class='dark-red'>HouseOwner</span>",
+            "L_HouseOwner",
+          ],
+          ["", "218103809", "Icon", "L_Icon"],
+          ["", "218103824", "IconOutline", "L_IconOutline"],
+          ["", "218103849", "IconOverlay", "L_IconOverlay"],
+          ["", "218103850", "IconUnderlay", "L_IconUnderlay"],
+          ["", "179", "<span class='dark-red'>Imbued</span>", "L_Imbued"],
+          [
+            "",
+            "319",
+            "<span class='dark-red'>ItemMaxLevel</span>",
+            "L_ItemMaxLevel",
+          ],
+          ["", "218103812", "ItemSlots", "L_ItemSlots"],
+          ["", "193", "<span class='dark-red'>KeysHeld</span>", "L_KeysHeld"],
+          [
+            "",
+            "218103811",
+            "<span class='dark-red'>Landblock</span>",
+            "L_Landblock",
+          ],
+          [
+            "",
+            "38",
+            "<span class='dark-red'>LockpickDifficulty</span>",
+            "L_LockpickDifficulty",
+          ],
+          [
+            "",
+            "88",
+            "<span class='dark-red'>LockpickSkillBonus</span>",
+            "L_LockpickSkillBonus",
+          ],
+          [
+            "",
+            "109",
+            "<span class='dark-red'>LoreRequirement</span>",
+            "L_LoreRequirement",
+          ],
+          [
+            "",
+            "218103836",
+            "<span class='dark-red'>MagicDef</span>",
+            "L_MagicDef",
+          ],
+          ["", "117", "<span class='dark-red'>ManaCost</span>", "L_ManaCost"],
+          ["", "131", "Material", "L_Material"],
+          [
+            "&#9734;",
+            "218103842",
+            "<span class='dark-red'>MaxDamage</span>",
+            "L_MaxDamage",
+          ],
+          [
+            "",
+            "108",
+            "<span class='dark-red'>MaximumMana</span>",
+            "L_MaximumMana",
+          ],
+          [
+            "",
+            "87",
+            "<span class='dark-red'>MaxLevelRestrict</span>",
+            "L_MaxLevelRestrict",
+          ],
+          [
+            "",
+            "86",
+            "<span class='dark-red'>MinLevelRestrict</span>",
+            "L_MinLevelRestrict",
+          ],
+          ["", "218103825", "MissileType", "L_MissileType"],
+          ["", "218103830", "<span class='dark-red'>Model</span>", "L_Model"],
+          ["", "218103820", "Monarch", "L_Monarch"],
+          [
+            "",
+            "35",
+            "<span class='dark-red'>NumberFollowers</span>",
+            "L_NumberFollowers",
+          ],
+          [
+            "",
+            "170",
+            "<span class='dark-red'>NumberItemsSalvaged</span>",
+            "L_NumberItemsSalvaged",
+          ],
+          [
+            "",
+            "171",
+            "<span class='dark-red'>NumberTimesTinkered</span>",
+            "L_NumberTimesTinkered",
+          ],
+          ["", "218103813", "PackSlots", "L_PackSlots"],
+          [
+            "",
+            "175",
+            "<span class='dark-red'>PagesTotal</span>",
+            "L_PagesTotal",
+          ],
+          ["", "174", "<span class='dark-red'>PagesUsed</span>", "L_PagesUsed"],
+          [
+            "",
+            "218103847",
+            "<span class='dark-red'>PhysicsDataFlags</span>",
+            "L_PhysicsDataFlags",
+          ],
+          [
+            "",
+            "111",
+            "<span class='dark-red'>PortalRestrictions</span>",
+            "L_PortalRestrictions",
+          ],
+          ["", "30", "<span class='dark-red'>Rank</span>", "L_Rank"],
+          [
+            "",
+            "110",
+            "<span class='dark-red'>RankRequirement</span>",
+            "L_RankRequirement",
+          ],
+          ["", "17", "<span class='dark-red'>RareId</span>", "L_RareId"],
+          [
+            "",
+            "26",
+            "<span class='dark-red'>RestrictedToToD</span>",
+            "L_RestrictedToToD",
+          ],
+          [
+            "",
+            "24",
+            "<span class='dark-red'>SkillCreditsAvail</span>",
+            "L_SkillCreditsAvail",
+          ],
+          [
+            "",
+            "115",
+            "<span class='dark-red'>SkillLevelReq</span>",
+            "L_SkillLevelReq",
+          ],
+          [
+            "",
+            "166",
+            "<span class='dark-red'>SlayerSpecies</span>",
+            "L_SlayerSpecies",
+          ],
+          ["", "218103817", "Slot", "L_Slot"],
+          [
+            "",
+            "218103837",
+            "<span class='dark-red'>SpecialProps</span>",
+            "L_SpecialProps",
+          ],
+          ["", "2", "<span class='dark-red'>Species</span>", "L_Species"],
+          [
+            "",
+            "218103838",
+            "<span class='dark-red'>SpellCount</span>",
+            "L_SpellCount",
+          ],
+          [
+            "",
+            "106",
+            "<span class='dark-red'>Spellcraft</span>",
+            "L_Spellcraft",
+          ],
+          ["", "218103814", "StackCount", "L_StackCount"],
+          ["", "218103815", "StackMax", "L_StackMax"],
+          [
+            "",
+            "367",
+            "<span class='dark-red'>SummoningGemBuffed</span>",
+            "L_SummoningGemBuffed",
+          ],
+          [
+            "",
+            "369",
+            "<span class='dark-red'>SummoningGemLevel</span>",
+            "L_SummoningGemLevel",
+          ],
+          [
+            "",
+            "20",
+            "<span class='dark-red'>TotalValue</span>",
+            "L_TotalValue",
+          ],
+          ["", "218103808", "Type", "L_Type"],
+          [
+            "",
+            "36",
+            "<span class='dark-red'>Unenchantable</span>",
+            "L_Unenchantable",
+          ],
+          ["", "218103843", "Unknown10", "L_Unknown10"],
+          ["", "218103844", "Unknown100000", "L_Unknown100000"],
+          ["", "218103845", "Unknown800000", "L_Unknown800000"],
+          ["", "218103845", "Unknown8000000", "L_Unknown8000000"],
+          ["", "218103826", "UsageMask", "L_UsageMask"],
+          ["", "92", "UsesRemaining", "L_UsesRemaining"],
+          ["", "91", "UsesTotal", "L_UsesTotal"],
+          ["", "19", "Value", "L_Value"],
+          [
+            "",
+            "379",
+            "<span class='dark-red'>VitalityRating</span>",
+            "L_VitalityRating",
+          ],
+          [
+            "",
+            "45",
+            "<span class='dark-red'>WandElemDmgType</span>",
+            "L_WandElemDmgType",
+          ],
+          [
+            "",
+            "353",
+            "<span class='dark-red'>WeaponMasteryCategory</span>",
+            "L_WeaponMasteryCategory",
+          ],
+          [
+            "",
+            "218103839",
+            "<span class='dark-red'>WeapSpeed</span>",
+            "L_WeapSpeed",
+          ],
+          [
+            "",
+            "218103818",
+            "<span class='dark-red'>Wielder</span>",
+            "L_Wielder",
+          ],
+          [
+            "",
+            "218103819",
+            "<span class='dark-red'>WieldingSlot</span>",
+            "L_WieldingSlot",
+          ],
+          [
+            "",
+            "159",
+            "<span class='dark-red'>WieldReqAttribute</span>",
+            "L_WieldReqAttribute",
+          ],
+          [
+            "",
+            "158",
+            "<span class='dark-red'>WieldReqType</span>",
+            "L_WieldReqType",
+          ],
+          [
+            "",
+            "160",
+            "<span class='dark-red'>WieldReqValue</span>",
+            "L_WieldReqValue",
+          ],
+          [
+            "",
+            "105",
+            "<span class='dark-red'>Workmanship</span>",
+            "L_Workmanship",
+          ],
+          [
+            "",
+            "129",
+            "<span class='dark-red'>XPForVPReduction</span>",
+            "L_XPForVPReduction",
+          ],
+        ],
+      },
+      "table--salvage-type-codes": {
+        orderBy: 1,
+        orderAsc: true,
+        caption: "<span class='code-text'>SalvageType</span> codes.",
+        head: [
+          "Code",
+          "<span class='code-text'>SalvageType</span> (on menu)",
+          "<span class='code-text'>myutilootor</span>",
+        ],
+        data: [
+          ["10", "Agate", "V_Agate"],
+          ["66", "Alabaster", "V_Alabaster"],
+          ["11", "Amber", "V_Amber"],
+          ["12", "Amethyst", "V_Amethyst"],
+          ["13", "Aquamarine", "V_Aquamarine"],
+          ["53", "Armoredillo Hide", "V_ArmoredilloHide"],
+          ["14", "Azurite", "V_Azurite"],
+          ["15", "Black Garnet", "V_BlackGarnet"],
+          ["16", "Black Opal", "V_BlackOpal"],
+          ["17", "Bloodstone", "V_Bloodstone"],
+          ["57", "Brass", "V_Brass"],
+          ["58", "Bronze", "V_Bronze"],
+          ["18", "Carnelian", "V_Carnelian"],
+          ["1", "Ceramic", "V_Ceramic"],
+          ["19", "Citrine", "V_Citrine"],
+          ["59", "Copper", "V_Copper"],
+          ["20", "Diamond", "V_Diamond"],
+          ["73", "Ebony", "V_Ebony"],
+          ["21", "Emerald", "V_Emerald"],
+          ["22", "Fire Opal", "V_FireOpal"],
+          ["60", "Gold", "V_Gold"],
+          ["67", "Granite", "V_Granite"],
+          ["23", "Green Garnet", "V_GreenGarnet"],
+          ["24", "Green Jade", "V_GreenJade"],
+          ["54", "Gromnie Hide", "V_GromnieHide"],
+          ["25", "Hematite", "V_Hematite"],
+          ["26", "Imperial Topaz", "V_ImperialTopaz"],
+          ["61", "Iron", "V_Iron"],
+          ["51", "Ivory", "V_Ivory"],
+          ["27", "Jet", "V_Jet"],
+          ["28", "Lapis Lazuli", "V_LapisLazuli"],
+          ["29", "Lavender Jade", "V_LavenderJade"],
+          ["52", "Leather", "V_Leather"],
+          ["4", "Linen", "V_Linen"],
+          ["74", "Mahogany", "V_Mahogany"],
+          ["30", "Malachite", "V_Malachite"],
+          ["68", "Marble", "V_Marble"],
+          ["31", "Moonstone", "V_Moonstone"],
+          ["75", "Oak", "V_Oak"],
+          ["69", "Obsidian", "V_Obsidian"],
+          ["32", "Onyx", "V_Onyx"],
+          ["33", "Opal", "V_Opal"],
+          ["34", "Peridot", "V_Peridot"],
+          ["76", "Pine", "V_Pine"],
+          ["2", "Porcelain", "V_Porcelain"],
+          ["62", "Pyreal", "V_Pyreal"],
+          ["35", "Red Garnet", "V_RedGarnet"],
+          ["36", "Red Jade", "V_RedJade"],
+          ["55", "Reed Shark Hide", "V_ReedSharkHide"],
+          ["37", "Rose Quartz", "V_RoseQuartz"],
+          ["38", "Ruby", "V_Ruby"],
+          ["70", "Sandstone", "V_Sandstone"],
+          ["39", "Sapphire", "V_Sapphire"],
+          ["5", "Satin", "V_Satin"],
+          ["71", "Serpentine", "V_Serpentine"],
+          ["6", "Silk", "V_Silk"],
+          ["63", "Silver", "V_Silver"],
+          ["40", "Smokey Quartz", "V_SmokeyQuartz"],
+          ["64", "Steel", "V_Steel"],
+          ["41", "Sunstone", "V_Sunstone"],
+          ["77", "Teak", "V_Teak"],
+          ["42", "Tiger Eye", "V_TigerEye"],
+          ["43", "Tourmaline", "V_Tourmaline"],
+          ["44", "Turquoise", "V_Turquoise"],
+          ["7", "Velvet", "V_Velvet"],
+          ["45", "White Jade", "V_WhiteJade"],
+          ["46", "White Quartz", "V_WhiteQuartz"],
+          ["47", "White Sapphire", "V_WhiteSapphire"],
+          ["8", "Wool", "V_Wool"],
+          ["48", "Yellow Garnet", "V_YellowGarnet"],
+          ["49", "Yellow Topaz", "V_YellowTopaz"],
+          ["50", "Zircon", "V_Zircon"],
+          [
+            "<span class='grayed-out strike-through'>3</span>",
+            "<span class='grayed-out '>[N/A] (not a material)</span>",
+            "<span class='grayed-out'>[N/A]</span>",
+          ],
+          [
+            "<span class='grayed-out strike-through'>9</span>",
+            "<span class='grayed-out'>[N/A] (not a material)</span>",
+            "<span class='grayed-out'>[N/A]</span>",
+          ],
+          [
+            "<span class='grayed-out strike-through'>56</span>",
+            "<span class='grayed-out'>[N/A] (not a material)</span>",
+            "<span class='grayed-out'>[N/A]</span>",
+          ],
+          [
+            "<span class='grayed-out strike-through'>65</span>",
+            "<span class='grayed-out'>[N/A] (not a material)</span>",
+            "<span class='grayed-out'>[N/A]</span>",
+          ],
+          [
+            "<span class='grayed-out strike-through'>72</span>",
+            "<span class='grayed-out'>[N/A] (not a material)</span>",
+            "<span class='grayed-out'>[N/A]</span>",
+          ],
+        ],
+      },
+      "table--armor-set-codes": {
+        orderBy: 1,
+        orderAsc: true,
+        caption:
+          "Armor Set codes.<br/><span class='small-text'>(For more, see <a class='no-dec' href='https://asheron.fandom.com/wiki/EQUIPMENT_SET_ID_INT'>here</a>; for just cloaks, <a class='no-dec' href='http://acpedia.org/wiki/Talk:Cloaks'>here</a>.)</span>",
+        head: ["Code", "Set (on menu)"],
+        data: [
+          ["27", "Acid Proof"],
+          ["14", "Adept&rsquo;s"],
+          ["6", "Ancient Relic"],
+          ["15", "Archer&rsquo;s"],
+          ["10", "Arm, Mind, Heart"],
+          ["11", "Coat of the Perfect Light"],
+          ["28", "Cold Proof"],
+          ["18", "Crafter&rsquo;s"],
+          ["30", "Dedication"],
+          ["16", "Defender&rsquo;s"],
+          ["20", "Dexterous"],
+          ["9", "Empyrean Rings"],
+          ["26", "Flame Proof"],
+          ["31", "Gladiatorial Clothing"],
+          ["23", "Hardened"],
+          ["19", "Hearty"],
+          ["25", "Interlocking"],
+          ["12", "Leggings of Perfect Light"],
+          ["29", "Lightning Proof"],
+          ["5", "Noble Relic"],
+          ["32", "Protective Clothing"],
+          ["24", "Reinforced"],
+          ["7", "Relic Alduressa"],
+          ["8", "Shou-jen"],
+          ["13", "Soldier&rsquo;s"],
+          ["22", "Swift"],
+          ["17", "Tinker&rsquo;s"],
+          ["21", "Wise"],
+        ],
+      },
+    };
+    const sectionDict = {};
+
+    // Recursively build "Section id" dictionary
+    function buildSectionDictionaryById(
+      sections,
+      basis,
+      labelPrefix,
+      dict,
+      alpha = false
+    ) {
+      const subBasis = `sub${basis}`;
+      const elClass = `${subBasis}-list`;
+      const sectionList = Array.from(sections);
+      for (const [i, section] of Object.entries(sections)) {
+        if (section.tagName === "LI") {
+          if (section.id?.slice(0, basis.length) === basis) {
+            const subPrefix = labelPrefix
+              ? `${labelPrefix}.${+i + 1}`
+              : `${+i + 1}`;
+            dict[section.id] = alpha
+              ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[+subPrefix - 1]
+              : subPrefix;
+            const subsections = Array.from(section.children).filter(
+              (c) => c?.tagName === "OL" && c?.classList?.contains(elClass)
+            );
+            for (const subsection of subsections) {
+              buildSectionDictionaryById(
+                subsection.children,
+                subBasis,
+                subPrefix,
+                dict,
+                alpha
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // inject into page all the link text to be displayed (for all section intra-links)
+    function injectSectionIdLinkTextFromAllIntraLinks(
+      intraLinks,
+      sectionBasis
+    ) {
+      Array.from(intraLinks)
+        .filter((el) => {
+          const prefix = el?.href?.split("#")[1]?.split("-")[0];
+          const prefixEnd = prefix?.slice(
+            prefix?.length - sectionBasis.length,
+            prefix?.length
+          );
+          return prefixEnd === sectionBasis;
+        })
+        .forEach((el) => {
+          const id = el.href.split("#")[1];
+          el.innerHTML = `Section ${sectionDict[id] ?? "???"}`;
+        });
+    }
+
+    // inject into page all the link text to be displayed (for all table intra-links)
+    function injectTableIdLinkTextFromAllIntraLinks(
+      intraLinks,
+      tableIds,
+      tableBasis
+    ) {
+      Array.from(intraLinks)
+        .filter((el) => {
+          const prefix = el?.href?.split("#")[1]?.split("-")[0];
+          const prefixEnd = prefix?.slice(
+            prefix?.length - tableBasis.length,
+            prefix?.length
+          );
+          return prefixEnd === tableBasis;
+        })
+        .forEach((el) => {
+          const id = el.href.split("#")[1];
+          el.innerHTML = `Table ${tableIds.indexOf(id) + 1 || "???"}`;
+        });
+    }
+
+    // inject into page the Table of Contents
+    function injectTableOfContents(step, incr) {
+      const toc = document.getElementById("toc-contents");
+      const keys = Object.keys(sectionDict);
+      keys.forEach((k) => {
+        const htmlTitle = document.getElementById(k)?.children[0]?.innerHTML;
+        const sectionNbr = sectionDict[k] ?? "???";
+        const depth = sectionNbr.split(".").length;
+        const amount = depth * step + ((depth * (depth - 1)) / 2) * incr;
+        const padStyle = `style="position:relative;margin-left:${
+          amount >= 0 ? amount : 0
+        }rem;${depth == 1 ? "font-weight:bold;" : ""}"`;
+        const spaceStyle =
+          depth == 1 && k !== keys[0] ? ' style="margin-top:1.2rem;"' : "";
+        const label = `<span style="position:absolute;left:-${
+          step + (depth - 1) * incr
+        }rem">${sectionNbr}</span>`;
+        toc.innerHTML += `<li${spaceStyle}><a href="#${k}" ${padStyle}>${label}${
+          htmlTitle ?? "???"
+        }</a>`;
+      });
+    }
+
+    // inject into page the List of Tables
+    function injectListOfTables(tableIds, step, incr) {
+      const lot = document.getElementById("lot-contents");
+      tableIds.forEach((id) => {
+        const htmlTitle = tables[id].caption.split("<br/>")[0].split(".")[0];
+        const tableNbr = tableIds.indexOf(id) + 1;
+        const depth = 2;
+        const amount = depth * step + ((depth * (depth - 1)) / 2) * incr;
+        const padStyle = `style="position:relative;margin-left:${
+          amount >= 0 ? amount : 0
+        }rem;${depth == 1 ? "font-weight:bold;" : ""}"`;
+        const label = `<span style="position:absolute;left:-${
+          step + (depth - 1) * incr
+        }rem">${tableNbr}</span>`;
+        lot.innerHTML += `<li><a href="#${id}" ${padStyle}>${label}${
+          htmlTitle ?? "???"
+        }</a>`;
+      });
+    }
+
+    // generate innerHTML for a table element's tbody section, using a data-table's "data" as fill-in source material
+    function generateTableBodyInnerHTML(data) {
+      let html = "";
+      for (const row of data) {
+        html += `<tr><td>${Object.values(row).join("</td><td>")}</td></tr>`;
+      }
+      return html;
+    }
+
+    // Modify tables' contents as needed:
+    //   - "wrap" every myutilootor column, and
+    //   - fill-in actual links in Details column of "RequirementType codes" table
+    function massageDataTablesContents(tableIds) {
+      // adjust tables' data fields
+      for (const key of Object.keys(tables)) {
+        // there's nothing to change in this table (including its sort-order)
+        if (key === "table--armor-set-codes") {
+          continue;
+        }
+        for (let ri = 0; ri < tables[key].data.length; ri++) {
+          let li = tables[key].data[ri].length - 1;
+          // re-map the "Details" column contents of (only) this table to the expected pre-filled intra-link format
+          if (key === "table--req-type-codes") {
+            const id = tables[key].data[ri][li];
+            tables[key].data[ri][li] = `<a href="#${id}">Section ${
+              sectionDict[id] ?? "???"
+            }</a>`;
+            li -= 1;
+          }
+          // "wrap" myutilootor column contents (because I was too lazy to manually do so)
+          tables[key].data[ri][li] = conditionallyWrap(
+            tables[key].data[ri][li] ?? "???",
+            "<span class='code-text'>",
+            "</span>"
+          );
+        }
+
+        // put table into initial ordering
+        reSort(key, tables[key].orderBy, true);
+      }
+    }
+
+    // inject initial contents into all "sort-table" tables on the page
+    function injectInitialTableContents(tableIds) {
+      for (const [key, table] of Object.entries(tables)) {
+        const el = document.getElementById(key);
+        // get the correct indices for caption, thead, and tbody
+        // NOTE: simply assume they're all present! (don't handle if not in expected form)
+        const idx = Object.entries(el.children).reduce((r, kv) => {
+          r[kv[1].tagName.toLowerCase()] = kv[0];
+          return r;
+        }, {});
+
+        // caption
+        el.children[idx.caption].innerHTML = `Table ${
+          tableIds.indexOf(key) + 1 || "???"
+        }: ${table.caption}`;
+
+        // thead
+        let cellsHTML = "";
+        for (let ci = 0; ci < table.head.length; ci++) {
+          cellsHTML += `<th class='tool-tip' onclick="reSort('${key}',${ci})">${table.head[ci]}<span class='tool-tip-text'>Click to re-sort.</span></th>`;
+        }
+        el.children[idx.thead].innerHTML = `<tr>${cellsHTML}</tr>`;
+
+        // tbody
+        el.children[idx.tbody].innerHTML = generateTableBodyInnerHTML(
+          table.data
+        );
+      }
+    }
+
+    // sort table k by column i's data (force = force ascending sort-order (used in initial sort))
+    function reSort(k, i, force = false) {
+      // for sorting purposes, return the upper-cased raw text in the table (minus all its html mark-up)... with some special exceptions
+      function getVal(str) {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = str;
+        const ret = tmp.innerText;
+        tmp.remove();
+        // coerce to a number if possible, returning that
+        if (ret.match(/^[0-9]+$/)) {
+          return +ret;
+        }
+        // monkey with how to sort on the "Details" column of the "RequirementType codes" table
+        const m = ret.match(/^Section ([0-9\.\?]+)/);
+        if (m) {
+          return m[1]
+            .split(".")
+            .map((p) => p.padStart(2, "0"))
+            .join(".");
+        }
+        return ret.toUpperCase();
+      }
+
+      // sort whole rows (vs other whole rows)
+      const dir = [
+        // descending-sort comparison function
+        (a, b) => {
+          const [u, v] = [getVal(a[i]), getVal(b[i])];
+          return u > v ? -1 : u < v ? 1 : 0;
+        },
+        // ascending-sort comparison function
+        (a, b) => {
+          let [u, v] = [getVal(a[i]), getVal(b[i])];
+          return u < v ? -1 : u > v ? 1 : 0;
+        },
+      ];
+
+      // sort the table's data in computed ascending/descending order, by column i
+      tables[k].orderAsc =
+        force || tables[k].orderBy !== +i || !tables[k].orderAsc;
+      tables[k].orderBy = +i;
+      tables[k].data.sort(dir[tables[k].orderAsc ? 1 : 0]);
+
+      // update the page's table
+      const elTable = document.getElementById(k);
+      const idx = Object.entries(elTable.children).reduce((r, kv) => {
+        r[kv[1].tagName.toLowerCase()] = kv[0];
+        return r;
+      }, {});
+      // tbody
+      elTable.children[idx.tbody].innerHTML = generateTableBodyInnerHTML(
+        tables[k].data
+      );
+    }
+
+    // wrap string str between strings pre and suf if regular expression rx matches str
+    //    note: default rx is to match any str NOT containing either < or >
+    function conditionallyWrap(str, pre, suf, rx = /^((?![<>]).)*$/) {
+      return str.match(rx) //indexOf("<") >= 0 || str.indexOf(">") >= 0
+        ? `${pre}${str}${suf}`
+        : str;
+    }
+
+    // upon the page having fully loaded... initialize everything
+    window.onload = (e) => {
+      // Build the sectionDict (global variable) Section id dictionary
+      buildSectionDictionaryById(
+        document.getElementsByClassName("sec-list")[0].children,
+        "sec",
+        "",
+        sectionDict // gets populated
+      );
+      // Add the appendix data to sectionDict
+      buildSectionDictionaryById(
+        document.getElementsByClassName("appendix-list")[0].children,
+        "appendix",
+        "",
+        sectionDict, // gets populated
+        true
+      );
+
+      const intraLinks = document.getElementsByClassName("internal-link");
+      const tableIds = Array.from(
+        document.getElementsByClassName("sort-table")
+      ).map((el) => el.id);
+
+      injectSectionIdLinkTextFromAllIntraLinks(intraLinks, "sec");
+      injectTableIdLinkTextFromAllIntraLinks(intraLinks, tableIds, "table");
+
+      massageDataTablesContents(tableIds);
+      injectInitialTableContents(tableIds);
+
+      const step = 2.5; // indentation-related, by hierarchy level
+      const incr = 1.25; // indentation-related, to adjust for increasing label-length for increased hierarchy depth
+      injectTableOfContents(step, incr);
+      injectListOfTables(tableIds, step, incr);
+    };
+  </script>
+</html>
