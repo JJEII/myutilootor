@@ -1,10 +1,10 @@
 ~~																																								
-~~		Myutilootor																																	Created by	
+~~		myutilootor																																	Created by	
 ~~		 REFERENCE																																	 Eskarina	
 ~~																																								
 
 
-PRONOUNCE 'Myutilootor' like 'mutilator' except with the A like OO in 'loot'. It's a play on words, where 'my util lootor' is a loot-rule utility.
+PRONOUNCE 'myutilootor' like 'mutilator' except with the A like OO in 'loot'. It's a play on words, where 'my util lootor' is a loot-rule utility.
 
 
 ~~ GENERAL FORMAT																																				
@@ -125,7 +125,7 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 ~~ Colors									
 
 	ArmorColorLike   l Target   h HexColor   i Hue   d SV
-		DETAILS: Four inputs. True if inspected item matches Target and is of a color within the parameters described below. Valid Target values listed in
+		DETAILS: Four inputs. True if inspected item matches Target and is of a color within the arguments described below. Valid Target values listed in
 			Armor Type/Color Region table in TARGET TABLES section.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
@@ -133,20 +133,20 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 		EXAMPLE: ArmorColorLike A_Lorica_BP_Base 0FC36B 14 0.1
 
 	ColorLike   h HexColor   i Hue   d SV
-		DETAILS: Three inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Three inputs. True if inspected item is of a color within the arguments described below.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
 			SV is the Saturation/Value ratio between 0.0 and 1.0 within which the color may vary from HexColor and still match.
 		EXAMPLE: ColorLike 0FC36B 14 0.1
 
 	SlotPalette   i PaletteN   i PaletteID
-		DETAILS: Two inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Two inputs. True if inspected item is of a color within the arguments described below.
 			PaletteN is the palette entry number.
 			PaletteID is the palette ID.
 		EXAMPLE: SlotPalette 4012 0FC36B
 
 	SlotColorLike   i PaletteN   h HexColor   i Hue   d SV
-		DETAILS: Four inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Four inputs. True if inspected item is of a color within the arguments described below.
 			PaletteN is the palette entry number.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
@@ -240,118 +240,141 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 
 	Acted on by requirements: ArmorColorLike
 
-    A_None                       A_Haebrean_BP_Ornaments         A_Nariyid_BP_Shoulders              A_Olthoi_Koujia_Kabuton_Base
-    A_Amuli_Coat_Chest           A_Haebrean_BP_Trim              A_Nariyid_Girth_Base                A_Olthoi_Koujia_Kabuton_Horns
-    A_Amuli_Coat_CollarShoulder  A_Haebrean_Girth_Base           A_Nariyid_Girth_BeltLines           A_Olthoi_Koujia_Legs_Base
-    A_Amuli_Coat_ArmsTrim        A_Haebrean_Girth_BeltScales     A_Nariyid_Girth_Ornaments           A_Olthoi_Koujia_Legs_SidesShins
-    A_Amuli_Legs_Base            A_Haebrean_Helm_Base            A_Nariyid_Sleeves_Shoulders         A_Scalemail_Cuirass_Base
-    A_Amuli_Legs_Trim            A_Haebrean_Helm_Mask            A_Nariyid_Sleeves_UpperArm          A_Scalemail_Cuirass_Bumps
-    A_Celdon_Base                A_Haebrean_Pauldrons_Base       A_Nariyid_Sleeves_LowerArm          A_Scalemail_Cuirass_Belt
-    A_Celdon_Veins               A_Haebrean_Pauldrons_Ornaments  A_Olthoi_BP_Base                    A_Tenassa_Legs_LineAtSide
-    A_Chiran_Coat_BaseArms       A_Lorica_BP_Veins               A_Olthoi_BP_Veins                   A_Tenassa_Legs_Base
-    A_Chiran_Coat_Stripes        A_Lorica_BP_Base                A_Olthoi_Alduressa_Legs_GirthBase   A_Tenassa_Legs_Highlight
-    A_Chiran_Legs_Girth          A_Lorica_BP_NeckTrim            A_Olthoi_Alduressa_Legs_GirthLines  A_Tenassa_BP_Shoulders
-    A_Chiran_Legs_Legs           A_Lorica_Legs_Base              A_Olthoi_Alduressa_Legs_LegsLines   A_Tenassa_BP_Base
-    A_Chiran_Legs_Trim           A_Lorica_Legs_KneesBeltCrotch   A_Olthoi_Amuli_Coat_Base            A_Yoroi_Cuirass_Base
-    A_Chiran_Helm_Horns          A_Lorica_Legs_Legs              A_Olthoi_Amuli_Coat_Trim            A_Yoroi_Cuirass_Belt
-    A_Chiran_Helm_Base           A_Nariyid_BP_CircleLines        A_Olthoi_Amuli_Coat_Shoulders       A_Yoroi_Girth_Base
-    A_Haebrean_BP_Chest          A_Nariyid_BP_Base               A_Olthoi_Amuli_Legs_Trim            A_Yoroi_Girth_Belt
+    A_None                       A_Haebrean_BP_Ornaments         A_Nariyid_BP_Shoulders              A_Olthoi_Koujia_Kabuton_Base     
+    A_Amuli_Coat_Chest           A_Haebrean_BP_Trim              A_Nariyid_Girth_Base                A_Olthoi_Koujia_Kabuton_Horns    
+    A_Amuli_Coat_CollarShoulder  A_Haebrean_Girth_Base           A_Nariyid_Girth_BeltLines           A_Olthoi_Koujia_Legs_Base        
+    A_Amuli_Coat_ArmsTrim        A_Haebrean_Girth_BeltScales     A_Nariyid_Girth_Ornaments           A_Olthoi_Koujia_Legs_SidesShins  
+    A_Amuli_Legs_Base            A_Haebrean_Helm_Base            A_Nariyid_Sleeves_Shoulders         A_Scalemail_Cuirass_Base         
+    A_Amuli_Legs_Trim            A_Haebrean_Helm_Mask            A_Nariyid_Sleeves_UpperArm          A_Scalemail_Cuirass_Bumps        
+    A_Celdon_Base                A_Haebrean_Pauldrons_Base       A_Nariyid_Sleeves_LowerArm          A_Scalemail_Cuirass_Belt         
+    A_Celdon_Veins               A_Haebrean_Pauldrons_Ornaments  A_Olthoi_BP_Base                    A_Tenassa_Legs_LineAtSide        
+    A_Chiran_Coat_BaseArms       A_Lorica_BP_Veins               A_Olthoi_BP_Veins                   A_Tenassa_Legs_Base              
+    A_Chiran_Coat_Stripes        A_Lorica_BP_Base                A_Olthoi_Alduressa_Legs_GirthBase   A_Tenassa_Legs_Highlight         
+    A_Chiran_Legs_Girth          A_Lorica_BP_NeckTrim            A_Olthoi_Alduressa_Legs_GirthLines  A_Tenassa_BP_Shoulders           
+    A_Chiran_Legs_Legs           A_Lorica_Legs_Base              A_Olthoi_Alduressa_Legs_LegsLines   A_Tenassa_BP_Base                
+    A_Chiran_Legs_Trim           A_Lorica_Legs_KneesBeltCrotch   A_Olthoi_Amuli_Coat_Base            A_Yoroi_Cuirass_Base             
+    A_Chiran_Helm_Horns          A_Lorica_Legs_Legs              A_Olthoi_Amuli_Coat_Trim            A_Yoroi_Cuirass_Belt             
+    A_Chiran_Helm_Base           A_Nariyid_BP_CircleLines        A_Olthoi_Amuli_Coat_Shoulders       A_Yoroi_Girth_Base               
+    A_Haebrean_BP_Chest          A_Nariyid_BP_Base               A_Olthoi_Amuli_Legs_Trim            A_Yoroi_Girth_Belt               
 
 
 ~~ Double Key Values						
 
 	Acted on by requirements: DKeyGE, DKeyLE; also DKeyBuffedGE (*)
 
-    D_AcidProt             D_ElementalDamageVersus *     D_ManaCBonus *                D_PierceProt
-    D_ApproachDistance     D_FireProt                    D_ManaRateOfChange            D_Range
-    D_AttackBonus *        D_Heading                     D_ManaStoneChanceDestruct     D_SalvageWorkmanship
-    D_BludgeonProt         D_HealingKitRestoreBonus      D_ManaTransferEfficiency      D_Scale
-    D_ColdProt             D_LightningProt               D_MeleeDefenseBonus *         D_SlashProt
-    D_DamageBonus          D_MagicDBonus                 D_MissileDBonus               D_Variance
+    D_AcidProt          D_ElementalDamageVersus *  D_ManaCBonus *             D_PierceProt          
+    D_ApproachDistance  D_FireProt                 D_ManaRateOfChange         D_Range               
+    D_AttackBonus *     D_Heading                  D_ManaStoneChanceDestruct  D_SalvageWorkmanship  
+    D_BludgeonProt      D_HealingKitRestoreBonus   D_ManaTransferEfficiency   D_Scale               
+    D_ColdProt          D_LightningProt            D_MeleeDefenseBonus *      D_SlashProt           
+    D_DamageBonus       D_MagicDBonus              D_MissileDBonus            D_Variance            
 
 
 ~~ Long Key Values							
 
 	Acted on by requirements: LKeyE, LKeyFlags, LKeyGE, LKeyLE, LKeyNE; also LKeyBuffedGE (*)
 
-    L_ActivationReqSkillId     L_Deaths                 L_MagicDef                L_Spellcraft
-    L_ActiveSpellCount         L_DescriptionFormat      L_ManaCost                L_StackCount
-    L_AffectsVitalAmt          L_ElementalDmgBonus      L_Material                L_StackMax
-    L_AffectsVitalId           L_EquipableSlots         L_MaxDamage *             L_SummoningGemBuffed
-    L_Age                      L_EquippedSlots          L_MaximumMana             L_SummoningGemLevel
-    L_ArmorLevel *             L_EquipSkill             L_MaxLevelRestrict        L_TotalValue
-    L_ArmorSetID               L_EquipType              L_MinLevelRestrict        L_Type
-    L_AssociatedSpell          L_FishingSkill           L_MissileType             L_Unenchantable
-    L_Attuned                  L_Flags                  L_Model                   L_Unknown10
-    L_Behavior                 L_GemSettingQty          L_Monarch                 L_Unknown100000
-    L_Bonded                   L_GemSettingType         L_NumberFollowers         L_Unknown800000
-    L_Burden                   L_Gender                 L_NumberItemsSalvaged     L_Unknown8000000
-    L_Category                 L_HealBoostRating        L_NumberTimesTinkered     L_UsageMask
-    L_CloakChanceType          L_Heritage               L_PackSlots               L_UsesRemaining
-    L_Container                L_HookMask               L_PagesTotal              L_UsesTotal
-    L_CooldownSeconds          L_HookType               L_PagesUsed               L_Value
-    L_Coverage                 L_HouseOwner             L_PhysicsDataFlags        L_VitalityRating
-    L_CreateFlags1             L_Icon                   L_PortalRestrictions      L_WandElemDmgType
-    L_CreateFlags2             L_IconOutline            L_Rank                    L_WeaponMasteryCategory
-    L_CreatureLevel            L_IconOverlay            L_RankRequirement         L_WeapSpeed
-    L_CritDamRating            L_IconUnderlay           L_RareId                  L_Wielder
-    L_CritDamResistRating      L_Imbued                 L_RestrictedToToD         L_WieldingSlot
-    L_CritRating               L_ItemMaxLevel           L_SkillCreditsAvail       L_WieldReqAttribute
-    L_CritResistRating         L_ItemSlots              L_SkillLevelReq           L_WieldReqType
-    L_CurrentMana              L_KeysHeld               L_SlayerSpecies           L_WieldReqValue
-    L_DamageType               L_Landblock              L_Slot                    L_Workmanship
-    L_DamRating                L_LockpickDifficulty     L_SpecialProps            L_XPForVPReduction
-    L_DamResistRating          L_LockpickSkillBonus     L_Species
-    L_DateOfBirth              L_LoreRequirement        L_SpellCount
+    L_ActivationReqSkillId  L_Deaths              L_MagicDef             L_SpellCount             
+    L_ActiveSpellCount      L_DescriptionFormat   L_ManaCost             L_Spellcraft             
+    L_AffectsVitalAmt       L_ElementalDmgBonus   L_Material             L_StackCount             
+    L_AffectsVitalId        L_EquipableSlots      L_MaxDamage *          L_StackMax               
+    L_Age                   L_EquippedSlots       L_MaximumMana          L_SummoningGemBuffed     
+    L_ArmorLevel *          L_EquipSkill          L_MaxLevelRestrict     L_SummoningGemLevel      
+    L_ArmorSetID            L_EquipType           L_MinLevelRestrict     L_TotalValue             
+    L_AssociatedSpell       L_FishingSkill        L_MissileType          L_Type                   
+    L_Attuned               L_Flags               L_Model                L_Unenchantable          
+    L_Behavior              L_GemSettingQty       L_Monarch              L_Unknown10              
+    L_Bonded                L_GemSettingType      L_NumberFollowers      L_Unknown100000          
+    L_Burden                L_Gender              L_NumberItemsSalvaged  L_Unknown800000          
+    L_Category              L_HealBoostRating     L_NumberTimesTinkered  L_Unknown8000000         
+    L_CloakChanceType       L_Heritage            L_PackSlots            L_UsageMask              
+    L_Container             L_HookMask            L_PagesTotal           L_UsesRemaining          
+    L_CooldownSeconds       L_HookType            L_PagesUsed            L_UsesTotal              
+    L_Coverage              L_HouseOwner          L_PhysicsDataFlags     L_Value                  
+    L_CreateFlags1          L_Icon                L_PortalRestrictions   L_VitalityRating         
+    L_CreateFlags2          L_IconOutline         L_Rank                 L_WandElemDmgType        
+    L_CreatureLevel         L_IconOverlay         L_RankRequirement      L_WeaponMasteryCategory  
+    L_CritDamRating         L_IconUnderlay        L_RareId               L_WeapSpeed              
+    L_CritDamResistRating   L_Imbued              L_RestrictedToToD      L_Wielder                
+    L_CritRating            L_ItemMaxLevel        L_SkillCreditsAvail    L_WieldingSlot           
+    L_CritResistRating      L_ItemSlots           L_SkillLevelReq        L_WieldReqAttribute      
+    L_CurrentMana           L_KeysHeld            L_SlayerSpecies        L_WieldReqType           
+    L_DamageType            L_Landblock           L_Slot                 L_WieldReqValue          
+    L_DamRating             L_LockpickDifficulty  L_SpecialProps         L_Workmanship            
+    L_DamResistRating       L_LockpickSkillBonus  L_Species              L_XPForVPReduction       
+    L_DateOfBirth           L_LoreRequirement     
 
 
 ~~ Match Strings 							
 
 	Acted on by requirements: MatchRx
 
-    M_Name            M_FellowshipName        M_MonarchName           M_LastTinkeredBy
-    M_Title           M_UsageInstructions     M_OnlyActivatedBy       M_ImbuedBy
-    M_Inscription     M_SimpleDescription     M_Patron                M_DateBorn
-    M_InscribedBy     M_FullDescription       M_PortalDestination     M_SecondaryName
+    M_DateBorn         M_InscribedBy     M_Name               M_SecondaryName      
+    M_FellowshipName   M_Inscription     M_OnlyActivatedBy    M_SimpleDescription  
+    M_FullDescription  M_LastTinkeredBy  M_Patron             M_Title              
+    M_ImbuedBy         M_MonarchName     M_PortalDestination  M_UsageInstructions  
 
 
 ~~ Object Classes							
 
 	Acted on by requirements: ObjClass
 
-    C_Armor              C_CraftedFletching     C_Lockpick          C_Salvage
-    C_BaseAlchemy        C_Door                 C_ManaStone         C_Scroll
-    C_BaseCooking        C_Foci                 C_MeleeWeapon       C_Services
-    C_BaseFletching      C_Food                 C_Misc              C_Sign
-    C_Book               C_Gem                  C_MissileWeapon     C_SpellComponent
-    C_Bundle             C_HealingKit           C_Money             C_TradeNote
-    C_Clothing           C_Housing              C_Monster           C_Unknown
-    C_Container          C_Jewelry              C_Npc               C_Ust
-    C_Corpse             C_Journal              C_Plant             C_Vendor
-    C_CraftedAlchemy     C_Key                  C_Player            C_WandStaffOrb
-    C_CraftedCooking     C_Lifestone            C_Portal
+    C_Armor           C_CraftedFletching  C_Lockpick       C_Salvage         
+    C_BaseAlchemy     C_Door              C_ManaStone      C_Scroll          
+    C_BaseCooking     C_Foci              C_MeleeWeapon    C_Services        
+    C_BaseFletching   C_Food              C_Misc           C_Sign            
+    C_Book            C_Gem               C_MissileWeapon  C_SpellComponent  
+    C_Bundle          C_HealingKit        C_Money          C_TradeNote       
+    C_Clothing        C_Housing           C_Monster        C_Unknown         
+    C_Container       C_Jewelry           C_Npc            C_Ust             
+    C_Corpse          C_Journal           C_Plant          C_Vendor          
+    C_CraftedAlchemy  C_Key               C_Player         C_WandStaffOrb    
+    C_CraftedCooking  C_Lifestone         C_Portal         
 
 
 ~~ Skills									
 
 	Acted on by requirements: BaseSkillRange, BuffedSkillGE
 
-    S_Alchemy                 S_DualWield           S_Lockpick               S_Shield
-    S_ArcaneLore              S_FinesseWeapons      S_Loyalty                S_SneakAttack
-    S_ArmorTinkering          S_Fletching           S_Mace                   S_Spear
-    S_AssessCreature          S_Gearcraft           S_MagicDefense           S_Staff
-    S_AssessPerson            S_Healing             S_MagicItemTinkering     S_Summoning
-    S_Axe                     S_HeavyWeapons        S_ManaConversion         S_Sword
-    S_Bow                     S_ItemEnchantment     S_MeleeDefense           S_ThrownWeapons
-    S_Cooking                 S_ItemTinkering       S_MissileDefense         S_TwoHandedCombat
-    S_CreatureEnchantment     S_Jump                S_MissileWeapons         S_Unarmed
-    S_Crossbow                S_Leadership          S_Recklessness           S_VoidMagic
-    S_Dagger                  S_LifeMagic           S_Run                    S_WarMagic
-    S_Deception               S_LightWeapons        S_Salvaging              S_WeaponTinkering
-    S_DirtyFighting
+    S_Alchemy              S_DualWield        S_Lockpick            S_Shield           
+    S_ArcaneLore           S_FinesseWeapons   S_Loyalty             S_SneakAttack      
+    S_ArmorTinkering       S_Fletching        S_Mace                S_Spear            
+    S_AssessCreature       S_Gearcraft        S_MagicDefense        S_Staff            
+    S_AssessPerson         S_Healing          S_MagicItemTinkering  S_Summoning        
+    S_Axe                  S_HeavyWeapons     S_ManaConversion      S_Sword            
+    S_Bow                  S_ItemEnchantment  S_MeleeDefense        S_ThrownWeapons    
+    S_Cooking              S_ItemTinkering    S_MissileDefense      S_TwoHandedCombat  
+    S_CreatureEnchantment  S_Jump             S_MissileWeapons      S_Unarmed          
+    S_Crossbow             S_Leadership       S_Recklessness        S_VoidMagic        
+    S_Dagger               S_LifeMagic        S_Run                 S_WarMagic         
+    S_Deception            S_LightWeapons     S_Salvaging           S_WeaponTinkering  
+    S_DirtyFighting        
+
+
+
+~~ SALVAGE TYPES
+
+    V_Agate            V_Emerald        V_Marble         V_Serpentine     
+    V_Alabaster        V_FireOpal       V_Moonstone      V_Silk           
+    V_Amber            V_Gold           V_Oak            V_Silver         
+    V_Amethyst         V_Granite        V_Obsidian       V_SmokeyQuartz   
+    V_Aquamarine       V_GreenGarnet    V_Onyx           V_Steel          
+    V_ArmoredilloHide  V_GreenJade      V_Opal           V_Sunstone       
+    V_Azurite          V_GromnieHide    V_Peridot        V_Teak           
+    V_BlackGarnet      V_Hematite       V_Pine           V_TigerEye       
+    V_BlackOpal        V_ImperialTopaz  V_Porcelain      V_Tourmaline     
+    V_Bloodstone       V_Iron           V_Pyreal         V_Turquoise      
+    V_Brass            V_Ivory          V_RedGarnet      V_Velvet         
+    V_Bronze           V_Jet            V_RedJade        V_WhiteJade      
+    V_Carnelian        V_LapisLazuli    V_ReedSharkHide  V_WhiteQuartz    
+    V_Ceramic          V_LavenderJade   V_RoseQuartz     V_WhiteSapphire  
+    V_Citrine          V_Leather        V_Ruby           V_Wool           
+    V_Copper           V_Linen          V_Sandstone      V_YellowGarnet   
+    V_Diamond          V_Mahogany       V_Sapphire       V_YellowTopaz    
+    V_Ebony            V_Malachite      V_Satin          V_Zircon         
 
 ~~																																								
-~~		Myutilootor																																	Created by	
+~~		myutilootor																																	Created by	
 ~~		 REFERENCE																																	 Eskarina	
 ~~																																								
 

@@ -15,7 +15,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace myutilootor.src
 {
-    [Serializable]
+#if SERIALIZABLE_EXCEPTIONS
+    [Serializable] // OBSOLETE AS OF .NET 8.0+
+#endif
     internal class MyException : Exception
     {
         internal int line;
@@ -28,9 +30,13 @@ namespace myutilootor.src
         }
         internal MyException(string message, Exception inner) : base(message, inner) {
         }
+
+        // OBSOLETE AS OF .NET 8.0+ :
+#if SERIALIZABLE_EXCEPTIONS
         protected MyException(
             System.Runtime.Serialization.SerializationInfo Info,
             System.Runtime.Serialization.StreamingContext context) : base(Info, context) {
         }
+#endif
     }
 }

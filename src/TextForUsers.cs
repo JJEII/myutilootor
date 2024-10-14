@@ -14,6 +14,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using myutilootor.src;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace myutilootor.src
 {
@@ -24,13 +30,13 @@ namespace myutilootor.src
         {
             ["_D"] = "Doubles are decimal numbers.",
             ["_I"] = "Integers are whole numbers.",
-            ["_S"] = "Strings must be enclosed in " + RE.oD + (RE.oD.CompareTo(RE.cD) != 0 ? " " + RE.cD : "") + @" delimiters; any inside them must be escaped by doubling, i.e., single " + RE.oD + @" is not allowed inside myutilootor strings, and " + RE.oD + RE.oD + @" in myutilootor results in " + RE.oD + @" in met" + (RE.oD.CompareTo(RE.cD) != 0 ? @" (same for " + RE.cD + ")" : "") + @". Different strings require at least one whitespace character between their delimiters, separating them.",
+            ["_S"] = "Strings must be enclosed in " + RE.oD + (RE.oD.CompareTo(RE.cD) != 0 ? " " + RE.cD : "") + @" delimiters; any inside them must be escaped by doubling, i.e., single " + RE.oD + @" is not allowed inside myutilootor strings, and " + RE.oD + RE.oD + @" in myutilootor results in " + RE.oD + @" in utl" + (RE.oD.CompareTo(RE.cD) != 0 ? @" (same for " + RE.cD + ")" : "") + @". Different strings require at least one whitespace character between their delimiters, separating them.",
             //_H omitted
             ["_L"] = "A literal starts with a letter or underscore, followed by letters, digits, or underscores; no whitespace, and no string delimiters (" + RE.oD + (RE.oD.CompareTo(RE.cD) != 0 ? RE.cD : "") + ")!"
         };
 
         // info for user messages, for describing details about the requirement types, as well as info on ON/NO/SALVAGE line lead-ins, a generic error message, and salvage syntax guidance
-        internal static Dictionary<string, string> getInfo = new() { // Dictionary<string, string>()
+        internal static readonly Dictionary<string, string> getInfo = new() { // Dictionary<string, string>()
 			["ON:"] = "Required: 'ON:' (or 'NO:') must be at the start of the line, followed by a string rule name and a string action to take if the rule evaluates true. The action may be Keep, Salvage, Sell, Read, or Keep #, where # is an integer amount, e.g., {Keep 3}. (" + typeInfo["_S"] + ") Every rule may contain zero or more requirements.",
 //			["NO:"] = "Required: 'NO:' must be at the start of the line, followed by a string rule name. (" + typeInfo["_S"] + ") Every rule may contain zero or more requirements.",
 			["SALVAGE:"] = "Required: 'SALVAGE:' must be at the start of the line, followed by a string defining the Default salvage combination rule. E.g., {1-6, 7-8, 9, 10}. (" + typeInfo["_S"] + ")",
@@ -69,25 +75,94 @@ namespace myutilootor.src
 			                 ["SpellRx"] = "'SpellRx' requires one input: a string regex. (" + typeInfo["_S"] + ")",
 			//["Disabled"] = //
 
-			["V_Salvage"] = "Every salvage combination definition requires one input, with an optional second input: a string combination-rule, a string value-combination-rule. (" + typeInfo["_S"] + ") Salvage-types cannot be defined multiple times; they must be unique or else absent (thereby falling back on the Default combination rule). The Default combination rule has no value-based component."
-		};
+			["V_Salvage"] = "Every salvage combination definition requires one input, with an optional second input: a string combination-rule, a string value-combination-rule. (" + typeInfo["_S"] + ") Salvage-types cannot be defined multiple times; they must be unique or else absent (thereby falling back on the Default combination rule). The Default combination rule has no value-based component. Every salvage-type must be one of the following:\n" + V_SalvageTable
+        };
 
-        #region MUT file header text
-        internal const string header =
+		private static string GetColumnizedString(List<string> values, int columnCount=4, int indent=4, int minSpacing=2) //, HashSet<string> star=null)
+        {
+            //var star = new HashSet<string>(E.DKeyBuffedGEActsOn.Keys.Concat(E.LKeyBuffedGEActsOn.Keys)); // { "D_ElementalDamageVersus", "D_ManaCBonus", "D_AttackBonus", "D_MeleeDefenseBonus", "L_MaxDamage", "L_ArmorLevel" }
+            var star = new HashSet<string>([.. E.DKeyBuffedGEActsOn.Keys, .. E.LKeyBuffedGEActsOn.Keys]); // { "D_ElementalDamageVersus", "D_ManaCBonus", "D_AttackBonus", "D_MeleeDefenseBonus", "L_MaxDamage", "L_ArmorLevel" }
+            var actuals = values.Select(v => v + (star.Contains(v) ? " *" : "")).ToArray();
+            int maxLen = (actuals.MaxBy(v => v.Length) ?? "").Length; // .Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+                                                                      //int maxLen = maxStr.Length;
+            //int rowCount = (int)Math.Ceiling((double)actuals.Length / columnCount);
+			int[] columnWidths = new int[columnCount];
+
+			// determine columns' row-counts
+            int[] columnRowCounts = new int[columnCount];
+			int columnsLeft = columnCount;
+			int entriesLeft = actuals.Length;
+			for (int i = columnRowCounts.Length-1; i>=0; entriesLeft -= columnRowCounts[i--])
+				columnRowCounts[i] = entriesLeft / columnsLeft--;
+
+			// determine columns' string-widths
+			int si = 0, ei = 0;
+			for (int ci = 0; ci < columnRowCounts.Length; ci++)
+			{
+				ei += columnRowCounts[ci];
+                columnWidths[ci] = (actuals[si..ei].MaxBy(v => v.Length) ?? "").Length + minSpacing;
+				si = ei;
+			}
+			/*
+            int baseLength = actuals.Length / columnCount;
+            int residue = actuals.Length % columnCount;
+            for (int i = 0; i < columnCount; i++)
+            {
+                columnRowCounts[i] = baseLength + (residue > 0 ? 1 : 0);
+                if (residue > 0)
+                    residue--;
+            }
+
+            string GetLine(int ri)
+			{
+				int stride = columnRowCounts[0];
+				string ln = "";
+				int idx = ri;
+				for (int ci = 0; ci < columnRowCounts.Length; ci++)
+				{
+					if (idx >= actuals.Length || (ri==stride && idx > ci*stride))
+						break;
+					ln += String.Format("{0,-"+(maxLen+minSpacing).ToString()+"}", actuals[idx]);
+                    idx += columnRowCounts[ci];
+				}
+				return ln;
+			}
+			*/
+			string columns = "";
+			string prefix = String.Concat(Enumerable.Repeat(" ", indent));
+            for (int ri = 0; ri < columnRowCounts[0]; ri++)
+			{
+				columns += prefix;
+				si = ei = 0;
+				for (int ci = 0; ci < columnRowCounts.Length; ci++) {
+					ei += columnRowCounts[ci];
+					if (ri == columnRowCounts[0]-1 && actuals[si..ei].Length < columnRowCounts[0])
+						break;
+					columns += String.Format("{0,-" + (columnWidths[ci]).ToString() + "}", actuals[si..ei][ri]);
+					si = ei;
+				}
+				columns += "\n";
+			}
+
+			return columns;
+		}
+
+		#region MUT file header text (custom ordering of commands)
+		internal static readonly string header =
 @"~~ {
-~~ Salvage: V_Agate V_Alabaster V_Amber V_Amethyst V_Aquamarine V_ArmoredilloHide V_Azurite V_BlackGarnet V_BlackOpal V_Bloodstone V_Brass V_Bronze V_Carnelian V_Ceramic V_Citrine V_Copper V_Diamond V_Ebony V_Emerald V_FireOpal V_Gold V_Granite V_GreenGarnet V_GreenJade V_GromnieHide V_Hematite V_ImperialTopaz V_Iron V_Ivory V_Jet V_LapisLazuli V_LavenderJade V_Leather V_Linen V_Mahogany V_Malachite V_Marble V_Moonstone V_Oak V_Obsidian V_Onyx V_Opal V_Peridot V_Pine V_Porcelain V_Pyreal V_RedGarnet V_RedJade V_ReedSharkHide V_RoseQuartz V_Ruby V_Sandstone V_Sapphire V_Satin V_Serpentine V_Silk V_Silver V_SmokeyQuartz V_Steel V_Sunstone V_Teak V_TigerEye V_Tourmaline V_Turquoise V_Velvet V_WhiteJade V_WhiteQuartz V_WhiteSapphire V_Wool V_YellowGarnet V_YellowTopaz V_Zircon
+~~ Salvage: " + String.Join(" ", E.Salvage.Keys)  + @"
 ~~
-~~ ArmorColorLike ActsOn: A_None A_Amuli_Coat_Chest A_Amuli_Coat_CollarShoulder A_Amuli_Coat_ArmsTrim A_Amuli_Legs_Base A_Amuli_Legs_Trim A_Celdon_Base A_Celdon_Veins A_Chiran_Coat_BaseArms A_Chiran_Coat_Stripes A_Chiran_Legs_Girth A_Chiran_Legs_Legs A_Chiran_Legs_Trim A_Chiran_Helm_Horns A_Chiran_Helm_Base A_Haebrean_BP_Chest A_Haebrean_BP_Ornaments A_Haebrean_BP_Trim A_Haebrean_Girth_Base A_Haebrean_Girth_BeltScales A_Haebrean_Helm_Base A_Haebrean_Helm_Mask A_Haebrean_Pauldrons_Base A_Haebrean_Pauldrons_Ornaments A_Lorica_BP_Veins A_Lorica_BP_Base A_Lorica_BP_NeckTrim A_Lorica_Legs_Base A_Lorica_Legs_KneesBeltCrotch A_Lorica_Legs_Legs A_Nariyid_BP_CircleLines A_Nariyid_BP_Base A_Nariyid_BP_Shoulders A_Nariyid_Girth_Base A_Nariyid_Girth_BeltLines A_Nariyid_Girth_Ornaments A_Nariyid_Sleeves_Shoulders A_Nariyid_Sleeves_UpperArm A_Nariyid_Sleeves_LowerArm A_Olthoi_BP_Base A_Olthoi_BP_Veins A_Olthoi_Alduressa_Legs_GirthBase A_Olthoi_Alduressa_Legs_GirthLines A_Olthoi_Alduressa_Legs_LegsLines A_Olthoi_Amuli_Coat_Base A_Olthoi_Amuli_Coat_Trim A_Olthoi_Amuli_Coat_Shoulders A_Olthoi_Amuli_Legs_Trim A_Olthoi_Koujia_Kabuton_Base A_Olthoi_Koujia_Kabuton_Horns A_Olthoi_Koujia_Legs_Base A_Olthoi_Koujia_Legs_SidesShins A_Scalemail_Cuirass_Base A_Scalemail_Cuirass_Bumps A_Scalemail_Cuirass_Belt A_Tenassa_Legs_LineAtSide A_Tenassa_Legs_Base A_Tenassa_Legs_Highlight A_Tenassa_BP_Shoulders A_Tenassa_BP_Base A_Yoroi_Cuirass_Base A_Yoroi_Cuirass_Belt A_Yoroi_Girth_Base A_Yoroi_Girth_Belt
+~~ ArmorColorLike ActsOn: " + String.Join(" ", E.ArmorType.Keys) + @"
 ~~ 
-~~ MatchRx ActsOn: M_DateBorn M_FellowshipName M_FullDescription M_ImbuedBy M_InscribedBy M_Inscription M_LastTinkeredBy M_MonarchName M_Name M_OnlyActivatedBy M_Patron M_PortalDestination M_SecondaryName M_SimpleDescription M_Title M_UsageInstructions
+~~ MatchRx ActsOn: " + String.Join(" ", E.MatchActsOn.Keys) + @"
 ~~
-~~ ObjClass ActsOn: C_Armor C_BaseAlchemy C_BaseCooking C_BaseFletching C_Book C_Bundle C_Clothing C_Container C_Corpse C_CraftedAlchemy C_CraftedCooking C_CraftedFletching C_Door C_Foci C_Food C_Gem C_HealingKit C_Housing C_Jewelry C_Journal C_Key C_Lifestone C_Lockpick C_ManaStone C_MeleeWeapon C_Misc C_MissileWeapon C_Money C_Monster C_Npc C_Plant C_Player C_Portal C_Salvage C_Scroll C_Services C_Sign C_SpellComponent C_TradeNote C_Unknown C_Ust C_Vendor C_WandStaffOrb
+~~ ObjClass ActsOn: " + String.Join(" ", E.ObjectClass.Keys) + @"
 ~~ 
-~~ LKey* ActsOn: L_ActivationReqSkillId L_ActiveSpellCount L_AffectsVitalAmt L_AffectsVitalId L_Age L_ArmorLevel L_ArmorSetID L_AssociatedSpell L_Attuned L_Behavior L_Bonded L_Burden L_Category L_CloakChanceType L_Container L_CooldownSeconds L_Coverage L_CreateFlags1 L_CreateFlags2 L_CreatureLevel L_CritDamRating L_CritDamResistRating L_CritRating L_CritResistRating L_CurrentMana L_DamageType L_DamRating L_DamResistRating L_DateOfBirth L_Deaths L_DescriptionFormat L_ElementalDmgBonus L_EquipableSlots L_EquippedSlots L_EquipSkill L_EquipType L_FishingSkill L_Flags L_GemSettingQty L_GemSettingType L_Gender L_HealBoostRating L_Heritage L_HookMask L_HookType L_HouseOwner L_Icon L_IconOutline L_IconOverlay L_IconUnderlay L_Imbued L_ItemMaxLevel L_ItemSlots L_KeysHeld L_Landblock L_LockpickDifficulty L_LockpickSkillBonus L_LoreRequirement L_MagicDef L_ManaCost L_Material L_MaxDamage L_MaximumMana L_MaxLevelRestrict L_MinLevelRestrict L_MissileType L_Model L_Monarch L_NumberFollowers L_NumberItemsSalvaged L_NumberTimesTinkered L_PackSlots L_PagesTotal L_PagesUsed L_PhysicsDataFlags L_PortalRestrictions L_Rank L_RankRequirement L_RareId L_RestrictedToToD L_SkillCreditsAvail L_SkillLevelReq L_SlayerSpecies L_Slot L_SpecialProps L_Species L_SpellCount L_Spellcraft L_StackCount L_StackMax L_SummoningGemBuffed L_SummoningGemLevel L_TotalValue L_Type L_Unenchantable L_Unknown10 L_Unknown100000 L_Unknown800000 L_Unknown8000000 L_UsageMask L_UsesRemaining L_UsesTotal L_Value L_VitalityRating L_WandElemDmgType L_WeaponMasteryCategory L_WeapSpeed L_Wielder L_WieldingSlot L_WieldReqAttribute L_WieldReqType L_WieldReqValue L_Workmanship L_XPForVPReduction
+~~ LKey* ActsOn: " + String.Join(" ", E.LongActsOn.Keys) + @"
 ~~ 
-~~ DKey* ActsOn: D_AcidProt D_ApproachDistance D_AttackBonus D_BludgeonProt D_ColdProt D_DamageBonus D_ElementalDamageVersus D_FireProt D_Heading D_HealingKitRestoreBonus D_LightningProt D_MagicDBonus D_ManaCBonus D_ManaRateOfChange D_ManaStoneChanceDestruct D_ManaTransferEfficiency D_MeleeDefenseBonus D_MissileDBonus D_PierceProt D_Range D_SalvageWorkmanship D_Scale D_SlashProt D_Variance
+~~ DKey* ActsOn: " + String.Join(" ", E.DoubleActsOn.Keys) + @"
 ~~
-~~ *Skill* ActsOn: S_Alchemy S_ArcaneLore S_ArmorTinkering S_AssessCreature S_AssessPerson S_Axe S_Bow S_Cooking S_CreatureEnchantment S_Crossbow S_Dagger S_Deception S_DirtyFighting S_DualWield S_FinesseWeapons S_Fletching S_Gearcraft S_Healing S_HeavyWeapons S_ItemEnchantment S_ItemTinkering S_Jump S_Leadership S_LifeMagic S_LightWeapons S_Lockpick S_Loyalty S_Mace S_MagicDefense S_MagicItemTinkering S_ManaConversion S_MeleeDefense S_MissileDefense S_MissileWeapons S_Recklessness S_Run S_Salvaging S_Shield S_SneakAttack S_Spear S_Staff S_Summoning S_Sword S_ThrownWeapons S_TwoHandedCombat S_Unarmed S_VoidMagic S_WarMagic S_WeaponTinkering
+~~ *Skill* ActsOn: " + String.Join(" ", E.Skill.Keys) + @"
 ~~ }
 ~~ {																																		
 ~~ File auto-generated by myutilootor, a program created by Eskarina of Morningthaw/Coldeve.												
@@ -103,112 +178,101 @@ namespace myutilootor.src
 ~~ }																																		
 
 ";
-        #endregion
-        #region armor "acts on" table
-        internal const string A_ActsOnTable =
-@"    A_None                       A_Haebrean_BP_Ornaments         A_Nariyid_BP_Shoulders              A_Olthoi_Koujia_Kabuton_Base
-    A_Amuli_Coat_Chest           A_Haebrean_BP_Trim              A_Nariyid_Girth_Base                A_Olthoi_Koujia_Kabuton_Horns
-    A_Amuli_Coat_CollarShoulder  A_Haebrean_Girth_Base           A_Nariyid_Girth_BeltLines           A_Olthoi_Koujia_Legs_Base
-    A_Amuli_Coat_ArmsTrim        A_Haebrean_Girth_BeltScales     A_Nariyid_Girth_Ornaments           A_Olthoi_Koujia_Legs_SidesShins
-    A_Amuli_Legs_Base            A_Haebrean_Helm_Base            A_Nariyid_Sleeves_Shoulders         A_Scalemail_Cuirass_Base
-    A_Amuli_Legs_Trim            A_Haebrean_Helm_Mask            A_Nariyid_Sleeves_UpperArm          A_Scalemail_Cuirass_Bumps
-    A_Celdon_Base                A_Haebrean_Pauldrons_Base       A_Nariyid_Sleeves_LowerArm          A_Scalemail_Cuirass_Belt
-    A_Celdon_Veins               A_Haebrean_Pauldrons_Ornaments  A_Olthoi_BP_Base                    A_Tenassa_Legs_LineAtSide
-    A_Chiran_Coat_BaseArms       A_Lorica_BP_Veins               A_Olthoi_BP_Veins                   A_Tenassa_Legs_Base
-    A_Chiran_Coat_Stripes        A_Lorica_BP_Base                A_Olthoi_Alduressa_Legs_GirthBase   A_Tenassa_Legs_Highlight
-    A_Chiran_Legs_Girth          A_Lorica_BP_NeckTrim            A_Olthoi_Alduressa_Legs_GirthLines  A_Tenassa_BP_Shoulders
-    A_Chiran_Legs_Legs           A_Lorica_Legs_Base              A_Olthoi_Alduressa_Legs_LegsLines   A_Tenassa_BP_Base
-    A_Chiran_Legs_Trim           A_Lorica_Legs_KneesBeltCrotch   A_Olthoi_Amuli_Coat_Base            A_Yoroi_Cuirass_Base
-    A_Chiran_Helm_Horns          A_Lorica_Legs_Legs              A_Olthoi_Amuli_Coat_Trim            A_Yoroi_Cuirass_Belt
-    A_Chiran_Helm_Base           A_Nariyid_BP_CircleLines        A_Olthoi_Amuli_Coat_Shoulders       A_Yoroi_Girth_Base
-    A_Haebrean_BP_Chest          A_Nariyid_BP_Base               A_Olthoi_Amuli_Legs_Trim            A_Yoroi_Girth_Belt
-";
-        #endregion
-        #region double "acts on" table
-        internal const string D_ActsOnTable =
-@"    D_AcidProt             D_ElementalDamageVersus *     D_ManaCBonus *                D_PierceProt
-    D_ApproachDistance     D_FireProt                    D_ManaRateOfChange            D_Range
-    D_AttackBonus *        D_Heading                     D_ManaStoneChanceDestruct     D_SalvageWorkmanship
-    D_BludgeonProt         D_HealingKitRestoreBonus      D_ManaTransferEfficiency      D_Scale
-    D_ColdProt             D_LightningProt               D_MeleeDefenseBonus *         D_SlashProt
-    D_DamageBonus          D_MagicDBonus                 D_MissileDBonus               D_Variance
-";
-        #endregion
-        #region long "acts on" table
-        internal const string L_ActsOnTable =
-@"    L_ActivationReqSkillId     L_Deaths                 L_MagicDef                L_Spellcraft
-    L_ActiveSpellCount         L_DescriptionFormat      L_ManaCost                L_StackCount
-    L_AffectsVitalAmt          L_ElementalDmgBonus      L_Material                L_StackMax
-    L_AffectsVitalId           L_EquipableSlots         L_MaxDamage *             L_SummoningGemBuffed
-    L_Age                      L_EquippedSlots          L_MaximumMana             L_SummoningGemLevel
-    L_ArmorLevel *             L_EquipSkill             L_MaxLevelRestrict        L_TotalValue
-    L_ArmorSetID               L_EquipType              L_MinLevelRestrict        L_Type
-    L_AssociatedSpell          L_FishingSkill           L_MissileType             L_Unenchantable
-    L_Attuned                  L_Flags                  L_Model                   L_Unknown10
-    L_Behavior                 L_GemSettingQty          L_Monarch                 L_Unknown100000
-    L_Bonded                   L_GemSettingType         L_NumberFollowers         L_Unknown800000
-    L_Burden                   L_Gender                 L_NumberItemsSalvaged     L_Unknown8000000
-    L_Category                 L_HealBoostRating        L_NumberTimesTinkered     L_UsageMask
-    L_CloakChanceType          L_Heritage               L_PackSlots               L_UsesRemaining
-    L_Container                L_HookMask               L_PagesTotal              L_UsesTotal
-    L_CooldownSeconds          L_HookType               L_PagesUsed               L_Value
-    L_Coverage                 L_HouseOwner             L_PhysicsDataFlags        L_VitalityRating
-    L_CreateFlags1             L_Icon                   L_PortalRestrictions      L_WandElemDmgType
-    L_CreateFlags2             L_IconOutline            L_Rank                    L_WeaponMasteryCategory
-    L_CreatureLevel            L_IconOverlay            L_RankRequirement         L_WeapSpeed
-    L_CritDamRating            L_IconUnderlay           L_RareId                  L_Wielder
-    L_CritDamResistRating      L_Imbued                 L_RestrictedToToD         L_WieldingSlot
-    L_CritRating               L_ItemMaxLevel           L_SkillCreditsAvail       L_WieldReqAttribute
-    L_CritResistRating         L_ItemSlots              L_SkillLevelReq           L_WieldReqType
-    L_CurrentMana              L_KeysHeld               L_SlayerSpecies           L_WieldReqValue
-    L_DamageType               L_Landblock              L_Slot                    L_Workmanship
-    L_DamRating                L_LockpickDifficulty     L_SpecialProps            L_XPForVPReduction
-    L_DamResistRating          L_LockpickSkillBonus     L_Species
-    L_DateOfBirth              L_LoreRequirement        L_SpellCount
-";
-        #endregion
-        #region string-match "acts on" table
-        internal const string M_ActsOnTable =
-@"    M_Name            M_FellowshipName        M_MonarchName           M_LastTinkeredBy
-    M_Title           M_UsageInstructions     M_OnlyActivatedBy       M_ImbuedBy
-    M_Inscription     M_SimpleDescription     M_Patron                M_DateBorn
-    M_InscribedBy     M_FullDescription       M_PortalDestination     M_SecondaryName
-";
-        #endregion
-        #region object-class "acts on" table
-        internal const string C_ActsOnTable =
-@"    C_Armor              C_CraftedFletching     C_Lockpick          C_Salvage
-    C_BaseAlchemy        C_Door                 C_ManaStone         C_Scroll
-    C_BaseCooking        C_Foci                 C_MeleeWeapon       C_Services
-    C_BaseFletching      C_Food                 C_Misc              C_Sign
-    C_Book               C_Gem                  C_MissileWeapon     C_SpellComponent
-    C_Bundle             C_HealingKit           C_Money             C_TradeNote
-    C_Clothing           C_Housing              C_Monster           C_Unknown
-    C_Container          C_Jewelry              C_Npc               C_Ust
-    C_Corpse             C_Journal              C_Plant             C_Vendor
-    C_CraftedAlchemy     C_Key                  C_Player            C_WandStaffOrb
-    C_CraftedCooking     C_Lifestone            C_Portal
-";
-        #endregion
-        #region skill "acts on" table
-        internal const string S_ActsOnTable =
-@"    S_Alchemy                 S_DualWield           S_Lockpick               S_Shield
-    S_ArcaneLore              S_FinesseWeapons      S_Loyalty                S_SneakAttack
-    S_ArmorTinkering          S_Fletching           S_Mace                   S_Spear
-    S_AssessCreature          S_Gearcraft           S_MagicDefense           S_Staff
-    S_AssessPerson            S_Healing             S_MagicItemTinkering     S_Summoning
-    S_Axe                     S_HeavyWeapons        S_ManaConversion         S_Sword
-    S_Bow                     S_ItemEnchantment     S_MeleeDefense           S_ThrownWeapons
-    S_Cooking                 S_ItemTinkering       S_MissileDefense         S_TwoHandedCombat
-    S_CreatureEnchantment     S_Jump                S_MissileWeapons         S_Unarmed
-    S_Crossbow                S_Leadership          S_Recklessness           S_VoidMagic
-    S_Dagger                  S_LifeMagic           S_Run                    S_WarMagic
-    S_Deception               S_LightWeapons        S_Salvaging              S_WeaponTinkering
-    S_DirtyFighting
-";
-        #endregion
+		#endregion
+		internal static readonly string A_ActsOnTable = GetColumnizedString([.. E.ArmorType.Keys]);
+        internal static readonly string D_ActsOnTable = GetColumnizedString([.. E.DoubleActsOn.Keys]);
+        internal static readonly string L_ActsOnTable = GetColumnizedString([.. E.LongActsOn.Keys]);
+        internal static readonly string M_ActsOnTable = GetColumnizedString([.. E.MatchActsOn.Keys]);
+        internal static readonly string C_ActsOnTable = GetColumnizedString([.. E.ObjectClass.Keys]);
+        internal static readonly string S_ActsOnTable = GetColumnizedString([.. E.Skill.Keys]);
+        internal static readonly string V_SalvageTable = GetColumnizedString([.. E.Salvage.Keys]);
+        //@"    A_None                       A_Haebrean_BP_Ornaments         A_Nariyid_BP_Shoulders              A_Olthoi_Koujia_Kabuton_Base
+        //    A_Amuli_Coat_Chest           A_Haebrean_BP_Trim              A_Nariyid_Girth_Base                A_Olthoi_Koujia_Kabuton_Horns
+        //    A_Amuli_Coat_CollarShoulder  A_Haebrean_Girth_Base           A_Nariyid_Girth_BeltLines           A_Olthoi_Koujia_Legs_Base
+        //    A_Amuli_Coat_ArmsTrim        A_Haebrean_Girth_BeltScales     A_Nariyid_Girth_Ornaments           A_Olthoi_Koujia_Legs_SidesShins
+        //    A_Amuli_Legs_Base            A_Haebrean_Helm_Base            A_Nariyid_Sleeves_Shoulders         A_Scalemail_Cuirass_Base
+        //    A_Amuli_Legs_Trim            A_Haebrean_Helm_Mask            A_Nariyid_Sleeves_UpperArm          A_Scalemail_Cuirass_Bumps
+        //    A_Celdon_Base                A_Haebrean_Pauldrons_Base       A_Nariyid_Sleeves_LowerArm          A_Scalemail_Cuirass_Belt
+        //    A_Celdon_Veins               A_Haebrean_Pauldrons_Ornaments  A_Olthoi_BP_Base                    A_Tenassa_Legs_LineAtSide
+        //    A_Chiran_Coat_BaseArms       A_Lorica_BP_Veins               A_Olthoi_BP_Veins                   A_Tenassa_Legs_Base
+        //    A_Chiran_Coat_Stripes        A_Lorica_BP_Base                A_Olthoi_Alduressa_Legs_GirthBase   A_Tenassa_Legs_Highlight
+        //    A_Chiran_Legs_Girth          A_Lorica_BP_NeckTrim            A_Olthoi_Alduressa_Legs_GirthLines  A_Tenassa_BP_Shoulders
+        //    A_Chiran_Legs_Legs           A_Lorica_Legs_Base              A_Olthoi_Alduressa_Legs_LegsLines   A_Tenassa_BP_Base
+        //    A_Chiran_Legs_Trim           A_Lorica_Legs_KneesBeltCrotch   A_Olthoi_Amuli_Coat_Base            A_Yoroi_Cuirass_Base
+        //    A_Chiran_Helm_Horns          A_Lorica_Legs_Legs              A_Olthoi_Amuli_Coat_Trim            A_Yoroi_Cuirass_Belt
+        //    A_Chiran_Helm_Base           A_Nariyid_BP_CircleLines        A_Olthoi_Amuli_Coat_Shoulders       A_Yoroi_Girth_Base
+        //    A_Haebrean_BP_Chest          A_Nariyid_BP_Base               A_Olthoi_Amuli_Legs_Trim            A_Yoroi_Girth_Belt
+        //";
+        //@"    D_AcidProt             D_ElementalDamageVersus *     D_ManaCBonus *                D_PierceProt
+        //    D_ApproachDistance     D_FireProt                    D_ManaRateOfChange            D_Range
+        //    D_AttackBonus *        D_Heading                     D_ManaStoneChanceDestruct     D_SalvageWorkmanship
+        //    D_BludgeonProt         D_HealingKitRestoreBonus      D_ManaTransferEfficiency      D_Scale
+        //    D_ColdProt             D_LightningProt               D_MeleeDefenseBonus *         D_SlashProt
+        //    D_DamageBonus          D_MagicDBonus                 D_MissileDBonus               D_Variance
+        //";
+        //@"    L_ActivationReqSkillId     L_Deaths                 L_MagicDef                L_Spellcraft
+        //    L_ActiveSpellCount         L_DescriptionFormat      L_ManaCost                L_StackCount
+        //    L_AffectsVitalAmt          L_ElementalDmgBonus      L_Material                L_StackMax
+        //    L_AffectsVitalId           L_EquipableSlots         L_MaxDamage *             L_SummoningGemBuffed
+        //    L_Age                      L_EquippedSlots          L_MaximumMana             L_SummoningGemLevel
+        //    L_ArmorLevel *             L_EquipSkill             L_MaxLevelRestrict        L_TotalValue
+        //    L_ArmorSetID               L_EquipType              L_MinLevelRestrict        L_Type
+        //    L_AssociatedSpell          L_FishingSkill           L_MissileType             L_Unenchantable
+        //    L_Attuned                  L_Flags                  L_Model                   L_Unknown10
+        //    L_Behavior                 L_GemSettingQty          L_Monarch                 L_Unknown100000
+        //    L_Bonded                   L_GemSettingType         L_NumberFollowers         L_Unknown800000
+        //    L_Burden                   L_Gender                 L_NumberItemsSalvaged     L_Unknown8000000
+        //    L_Category                 L_HealBoostRating        L_NumberTimesTinkered     L_UsageMask
+        //    L_CloakChanceType          L_Heritage               L_PackSlots               L_UsesRemaining
+        //    L_Container                L_HookMask               L_PagesTotal              L_UsesTotal
+        //    L_CooldownSeconds          L_HookType               L_PagesUsed               L_Value
+        //    L_Coverage                 L_HouseOwner             L_PhysicsDataFlags        L_VitalityRating
+        //    L_CreateFlags1             L_Icon                   L_PortalRestrictions      L_WandElemDmgType
+        //    L_CreateFlags2             L_IconOutline            L_Rank                    L_WeaponMasteryCategory
+        //    L_CreatureLevel            L_IconOverlay            L_RankRequirement         L_WeapSpeed
+        //    L_CritDamRating            L_IconUnderlay           L_RareId                  L_Wielder
+        //    L_CritDamResistRating      L_Imbued                 L_RestrictedToToD         L_WieldingSlot
+        //    L_CritRating               L_ItemMaxLevel           L_SkillCreditsAvail       L_WieldReqAttribute
+        //    L_CritResistRating         L_ItemSlots              L_SkillLevelReq           L_WieldReqType
+        //    L_CurrentMana              L_KeysHeld               L_SlayerSpecies           L_WieldReqValue
+        //    L_DamageType               L_Landblock              L_Slot                    L_Workmanship
+        //    L_DamRating                L_LockpickDifficulty     L_SpecialProps            L_XPForVPReduction
+        //    L_DamResistRating          L_LockpickSkillBonus     L_Species
+        //    L_DateOfBirth              L_LoreRequirement        L_SpellCount
+        //";
+        //@"    M_Name            M_FellowshipName        M_MonarchName           M_LastTinkeredBy
+        //    M_Title           M_UsageInstructions     M_OnlyActivatedBy       M_ImbuedBy
+        //    M_Inscription     M_SimpleDescription     M_Patron                M_DateBorn
+        //    M_InscribedBy     M_FullDescription       M_PortalDestination     M_SecondaryName
+        //";
+        //@"    C_Armor              C_CraftedFletching     C_Lockpick          C_Salvage
+        //    C_BaseAlchemy        C_Door                 C_ManaStone         C_Scroll
+        //    C_BaseCooking        C_Foci                 C_MeleeWeapon       C_Services
+        //    C_BaseFletching      C_Food                 C_Misc              C_Sign
+        //    C_Book               C_Gem                  C_MissileWeapon     C_SpellComponent
+        //    C_Bundle             C_HealingKit           C_Money             C_TradeNote
+        //    C_Clothing           C_Housing              C_Monster           C_Unknown
+        //    C_Container          C_Jewelry              C_Npc               C_Ust
+        //    C_Corpse             C_Journal              C_Plant             C_Vendor
+        //    C_CraftedAlchemy     C_Key                  C_Player            C_WandStaffOrb
+        //    C_CraftedCooking     C_Lifestone            C_Portal
+        //";
+        //@"    S_Alchemy                 S_DualWield           S_Lockpick               S_Shield
+        //    S_ArcaneLore              S_FinesseWeapons      S_Loyalty                S_SneakAttack
+        //    S_ArmorTinkering          S_Fletching           S_Mace                   S_Spear
+        //    S_AssessCreature          S_Gearcraft           S_MagicDefense           S_Staff
+        //    S_AssessPerson            S_Healing             S_MagicItemTinkering     S_Summoning
+        //    S_Axe                     S_HeavyWeapons        S_ManaConversion         S_Sword
+        //    S_Bow                     S_ItemEnchantment     S_MeleeDefense           S_ThrownWeapons
+        //    S_Cooking                 S_ItemTinkering       S_MissileDefense         S_TwoHandedCombat
+        //    S_CreatureEnchantment     S_Jump                S_MissileWeapons         S_Unarmed
+        //    S_Crossbow                S_Leadership          S_Recklessness           S_VoidMagic
+        //    S_Dagger                  S_LifeMagic           S_Run                    S_WarMagic
+        //    S_Deception               S_LightWeapons        S_Salvaging              S_WeaponTinkering
+        //    S_DirtyFighting
+        //";
         #region myutilootor reference file text
-        internal const string reference =
+        internal static readonly string reference =
 @"~~																																								
 ~~		myutilootor																																	Created by	
 ~~		 REFERENCE																																	 Eskarina	
@@ -336,7 +400,7 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 ~~ Colors									
 
 	ArmorColorLike   l Target   h HexColor   i Hue   d SV
-		DETAILS: Four inputs. True if inspected item matches Target and is of a color within the parameters described below. Valid Target values listed in
+		DETAILS: Four inputs. True if inspected item matches Target and is of a color within the arguments described below. Valid Target values listed in
 			Armor Type/Color Region table in TARGET TABLES section.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
@@ -344,20 +408,20 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 		EXAMPLE: ArmorColorLike A_Lorica_BP_Base 0FC36B 14 0.1
 
 	ColorLike   h HexColor   i Hue   d SV
-		DETAILS: Three inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Three inputs. True if inspected item is of a color within the arguments described below.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
 			SV is the Saturation/Value ratio between 0.0 and 1.0 within which the color may vary from HexColor and still match.
 		EXAMPLE: ColorLike 0FC36B 14 0.1
 
 	SlotPalette   i PaletteN   i PaletteID
-		DETAILS: Two inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Two inputs. True if inspected item is of a color within the arguments described below.
 			PaletteN is the palette entry number.
 			PaletteID is the palette ID.
 		EXAMPLE: SlotPalette 4012 0FC36B
 
 	SlotColorLike   i PaletteN   h HexColor   i Hue   d SV
-		DETAILS: Four inputs. True if inspected item is of a color within the parameters described below.
+		DETAILS: Four inputs. True if inspected item is of a color within the arguments described below.
 			PaletteN is the palette entry number.
 			HexColor is a six-digit hexidecimal number representing a color (similar to HTML code).
 			Hue is an integer from 0 to 255 that specifies an amount by which the inspected item's color may vary from HexColor and still match.
@@ -482,6 +546,11 @@ SALVAGE: {1-6, 7-8, 9, 10} ~~ {
 	Acted on by requirements: BaseSkillRange, BuffedSkillGE
 
 " + S_ActsOnTable + @"
+
+
+~~ SALVAGE TYPES
+
+" + V_SalvageTable + @"
 ~~																																								
 ~~		myutilootor																																	Created by	
 ~~		 REFERENCE																																	 Eskarina	

@@ -16,12 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace myutilootor.src
 {
 	class UTLSalvage {
-		internal E.Salvage type;
+		internal int type; // E.Salvage type;
 		internal string combo;
 		internal string? value;
 
 		internal UTLSalvage() {
-			type = E.Salvage.V_Agate;
+			type = E.Salvage.VofK("V_Agate"); // E.Salvage.V_Agate;
 			combo = "";
 			value = null;
 		}
@@ -31,12 +31,12 @@ namespace myutilootor.src
 			combo = s.combo;
 			value = s.value;
         }
-		internal UTLSalvage(E.Salvage t, string c) {
+		internal UTLSalvage(int t, string c) { // E.Salvage t, string c) {
 			type = t;
 			combo = c;
 			value = null;
 		}
-		internal UTLSalvage(E.Salvage t, string c, string? v) {
+		internal UTLSalvage(int t, string c, string? v) { // E.Salvage t, string c, string? v) {
 			type = t;
 			combo = c;
 			value = v;

@@ -57,10 +57,12 @@ namespace myutilootor.src
 
 			foreach (UTLSalvage s in salvage) {
 				if(s.value == null)
-					sw.WriteLine("\t" + s.type.ToString() + " {" + RE.USetStr(s.combo) + "}");
-				else
-					sw.WriteLine("\t" + s.type.ToString() + " {" + RE.USetStr(s.combo) + "} {" + RE.USetStr(s.value) + "}");
-				nLinesWritten++;
+                    //sw.WriteLine("\t" + s.type.ToString() + " {" + RE.USetStr(s.combo) + "}");
+	                sw.WriteLine("\t" + E.Salvage.KofV(s.type) + " {" + RE.USetStr(s.combo) + "}");
+                else
+                    //sw.WriteLine("\t" + s.type.ToString() + " {" + RE.USetStr(s.combo) + "} {" + RE.USetStr(s.value) + "}");
+					sw.WriteLine("\t" + E.Salvage.KofV(s.type) + " {" + RE.USetStr(s.combo) + "} {" + RE.USetStr(s.value) + "}");
+                nLinesWritten++;
 			}
 
 			sw.WriteLine("~~ }");
@@ -99,7 +101,7 @@ namespace myutilootor.src
 					if (mode == 1)
 						throw new MyException($"[LINE {nLinesRead}]: Syntax error. Only one 'SALVAGE:' section allowed. {TextForUsers.getInfo["SALVAGE:"]}");
 					mode = 1;
-					match = RE.getParms["SALVAGE:"].Match(ln[8..]); // start just after "SALVAGE:"
+					match = RE.getArgs["SALVAGE:"].Match(ln[8..]); // start just after "SALVAGE:"
 					if (!match.Success)
 						throw new MyException($"[LINE {nLinesRead}]: Syntax error. {TextForUsers.getInfo["SALVAGE:"]}");
 					salvageDefaultCombo = RE.UGetStr(match.Groups["s"].Value[1..^1]); // length is at least 2; remove delimiters
@@ -107,16 +109,16 @@ namespace myutilootor.src
 					break;
 				} else if (match.Success) { // if found an ON: or NO:
 					mode = 0;
-					match = RE.getParms["ON:"].Match(ln[3..]); // start just after "ON:" (or NO:)
+					match = RE.getArgs["ON:"].Match(ln[3..]); // start just after "ON:" (or NO:)
 					if (!match.Success)
 						throw new MyException($"[LINE {nLinesRead}]: Syntax error. {TextForUsers.getInfo["ON:"]}");
 					string nam = RE.UGetStr(match.Groups["s"].Value[1..^1]); // length is at least 2; remove delimiters
 					string act = RE.UGetStr(match.Groups["s2"].Value[1..^1]); // length is at least 2; remove delimiters
-					match = RE.getParms["RuleAction"].Match(act);
+					match = RE.getArgs["RuleAction"].Match(act);
 					int n = 0;
 					E.Action eAct;
 					if (!match.Success) {
-						match = RE.getParms["RuleActionKeepN"].Match(act);
+						match = RE.getArgs["RuleActionKeepN"].Match(act);
 						if (!match.Success)
 							throw new MyException($"[LINE {nLinesRead}]: Syntax error. {TextForUsers.getInfo["ON:"]}");
 						try {
@@ -162,12 +164,13 @@ namespace myutilootor.src
 
 				// if found something-else, wrong
 				if (!match.Success)
-					throw new MyException($"[LINE {nLinesRead}]: Syntax error.{TextForUsers.getInfo["V_Salvage"]}");
+					throw new MyException($"[LINE {nLinesRead}]: Syntax error. {TextForUsers.getInfo["V_Salvage"]}");
 
-				E.Salvage eV = (E.Salvage) Enum.Parse(typeof(E.Salvage), match.Groups["salv"].Value);
-				if (0 <= salvage.FindIndex(f => f.type == eV))
+                //E.Salvage eV = (E.Salvage)Enum.Parse(typeof(E.Salvage), match.Groups["salv"].Value);
+                int eV = E.Salvage.VofK(match.Groups["salv"].Value);
+                if (0 <= salvage.FindIndex(f => f.type == eV))
 					throw new MyException($"[LINE {nLinesRead}]: Each salvage type may have no more than one combination-rule entry. Duplicate detected.{TextForUsers.getInfo["V_Salvage"]}");
-				match = RE.getParms["V_Salvage"].Match(ln[(1+match.Groups["salv"].Value.Length)..]);
+				match = RE.getArgs["V_Salvage"].Match(ln[(1+match.Groups["salv"].Value.Length)..]);
 				if( !match.Success )
 					throw new MyException($"[LINE {nLinesRead}]: Each salvage type entered requires a combination-rule.{TextForUsers.getInfo["V_Salvage"]}");
 				salvage.Add(new UTLSalvage(eV,

@@ -90,15 +90,15 @@ namespace myutilootor.src
 						nLinesReadInRule++;
 						tmp = sr.ReadLine() ?? ""; // should never be null, but make VS happy with ??
                         readCount += tmp.Length + 2;
-						if (ReferenceEquals(UTLRequirement.parameterVector[(int)req.type][i].GetType(), ((string)"").GetType())) // Object.ReferenceEquals
+						if (ReferenceEquals(UTLRequirement.argVector[(int)req.type][i].GetType(), ((string)"").GetType())) // Object.ReferenceEquals
                             tmpData = tmp; // string
-						else if (ReferenceEquals(UTLRequirement.parameterVector[(int)req.type][i].GetType(), ((int)0).GetType()))
+						else if (ReferenceEquals(UTLRequirement.argVector[(int)req.type][i].GetType(), ((int)0).GetType()))
                             tmpData = int.Parse(tmp);
-						else if (ReferenceEquals(UTLRequirement.parameterVector[(int)req.type][i].GetType(), ((double)0.0).GetType()))
+						else if (ReferenceEquals(UTLRequirement.argVector[(int)req.type][i].GetType(), ((double)0.0).GetType()))
                             tmpData = double.Parse(tmp);
-						else if (ReferenceEquals(UTLRequirement.parameterVector[(int)req.type][i].GetType(), ((byte)0).GetType()))
+						else if (ReferenceEquals(UTLRequirement.argVector[(int)req.type][i].GetType(), ((byte)0).GetType()))
                             tmpData = byte.Parse(tmp);
-						else if (ReferenceEquals(UTLRequirement.parameterVector[(int)req.type][i].GetType(), ((bool)false).GetType()))
+						else if (ReferenceEquals(UTLRequirement.argVector[(int)req.type][i].GetType(), ((bool)false).GetType()))
                             tmpData = bool.Parse(tmp);
 						else
 							throw new MyException($"Unrecognized data type. [{tmp}]");
@@ -106,14 +106,17 @@ namespace myutilootor.src
 						i++;
 					}
 
-					// Additional Requirement parameter constraints
+                    // Additional Requirement argument constraints
 
-					switch (req.type) {
+                    switch (req.type) {
 						case E.Requirement.MatchRx: // loff = 0
 							try {
-								E.MatchActsOn t = (E.MatchActsOn)req.data[1];
-							} catch (Exception) {
-								throw new Exception($"Invalid {req.type.GetType()} 'Acts On' designation.");
+								// E.MatchActsOn t = (E.MatchActsOn)req.data[1];
+                                if (!E.MatchActsOn.ContainsValue((int)req.data[1]))
+                                    throw new Exception(); // populated below
+                            }
+                            catch (Exception) {
+								throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} 'Acts On' designation.");
 							}
 							break;
 						case E.Requirement.LKeyE: // loff = 0
@@ -123,28 +126,38 @@ namespace myutilootor.src
 						case E.Requirement.LKeyNE:
 						case E.Requirement.LKeyBuffedGE:
 							try {
-								E.LongActsOn t = (E.LongActsOn)req.data[1];
-								if (req.type == E.Requirement.LKeyBuffedGE && !(t == E.LongActsOn.L_ArmorLevel || t == E.LongActsOn.L_MaxDamage))
-									throw new Exception(""); // invalid 'acts on' (message filled below)
+                                // E.LongActsOn t = (E.LongActsOn)req.data[1];
+                                int t = (int)req.data[1];
+                                if (!E.LongActsOn.ContainsValue(t))
+                                    throw new Exception(); // populated below
+                                if (req.type == E.Requirement.LKeyBuffedGE && !E.LKeyBuffedGEActsOn.ContainsValue(t)) // !(t == E.LongActsOn.L_ArmorLevel || t == E.LongActsOn.L_MaxDamage)
+                                    throw new Exception(); // invalid 'acts on' (message filled below)
 							} catch (Exception) {
-								throw new Exception($"Invalid {req.type.GetType()} 'Acts On' designation.");
+								throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} 'Acts On' designation.");
 							}
 							break;
 						case E.Requirement.DKeyGE: // loff = 0
 						case E.Requirement.DKeyLE:
 						case E.Requirement.DKeyBuffedGE:
 							try {
-								E.DoubleActsOn t = (E.DoubleActsOn)req.data[1];
-								if (req.type == E.Requirement.DKeyBuffedGE && !(t == E.DoubleActsOn.D_AttackBonus || t == E.DoubleActsOn.D_ElementalDamageVersus || t == E.DoubleActsOn.D_ManaCBonus || t == E.DoubleActsOn.D_MeleeDefenseBonus))
-									throw new Exception(""); // invalid 'acts on' (message filled below)
+                                //E.DoubleActsOn t = (E.DoubleActsOn)req.data[1];
+                                int t = (int)req.data[1];
+                                if (!E.DoubleActsOn.ContainsValue(t))
+                                    throw new Exception(); // populated below
+                                if (req.type == E.Requirement.DKeyBuffedGE && !E.DKeyBuffedGEActsOn.ContainsValue(t)) //!(t == E.DoubleActsOn.VofK("D_AttackBonus") || t == E.DoubleActsOn.VofK("D_ElementalDamageVersus")
+																														//|| t == E.DoubleActsOn.VofK("D_ManaCBonus") || t == E.DoubleActsOn.VofK("D_MeleeDefenseBonus")))
+                                    throw new Exception(); // invalid 'acts on' (message filled below)
 							} catch (Exception) {
-								throw new Exception($"Invalid {req.type.GetType()} 'Acts On' designation.");
+								throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} 'Acts On' designation.");
 							}
 							break;
 						case E.Requirement.ObjClass: // loff = 0
 							try {
-								E.ObjectClass t = (E.ObjectClass)req.data[0];
-							} catch (Exception) {
+                                //E.ObjectClass t = (E.ObjectClass)req.data[0];
+                                if (!E.ObjectClass.ContainsValue((int)req.data[0]))
+                                    throw new Exception(); // populated below
+                            }
+                            catch (Exception) {
 								throw new Exception("Invalid Object Class designation.");
 							}
 							break;
@@ -155,22 +168,28 @@ namespace myutilootor.src
 								loff = -1;
 								throw new Exception("S/V must be between 0.0 and 1.0, inclusive.");
 							}
-							if (req.type == E.Requirement.ArmorColorLike && !E.UtlString_To_A_Type.ContainsKey((string)req.data[5])) // Armor Type/Color Region
-								throw new Exception("Unrecognized Armor Type/Color Region."); // loff = 0 here still (as it needs to be)
+							if (req.type == E.Requirement.ArmorColorLike && !E.ArmorType.ContainsValue((string)req.data[5])) // Armor Type/Color Region  // !E.UtlString_To_A_Type.ContainsKey((string)req.data[5])
+                                throw new Exception("Unrecognized Armor Type/Color Region."); // loff = 0 here still (as it needs to be)
 							break;
 						case E.Requirement.BuffedSkillGE: // loff = 0
 							try {
-								E.Skill t = (E.Skill)req.data[1];
-							} catch (Exception) {
-								throw new Exception($"Invalid {req.type.GetType()} 'Acts On' designation.");
+                                //E.Skill t = (E.Skill)req.data[1];
+								if (!E.Skill.ContainsValue((int)req.data[1]))
+									throw new Exception(); // populated below
+                            }
+                            catch (Exception) {
+								throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} 'Acts On' designation.");
 							}
 							break;
 						case E.Requirement.BaseSkillRange: // loff = -2
 							try {
-								E.Skill t = (E.Skill)req.data[0];
-							} catch (Exception) {
+                                //E.Skill t = (E.Skill)req.data[0];
+                                if (!E.Skill.ContainsValue((int)req.data[0]))
+                                    throw new Exception(); // populated below
+                            }
+                            catch (Exception) {
 								loff = -2;
-								throw new Exception($"Invalid {req.type.GetType()} 'Acts On' designation.");
+								throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} 'Acts On' designation.");
 							}
 							break;
 					}
@@ -181,7 +200,7 @@ namespace myutilootor.src
 						try {
 							disabled |= (bool)req.data[0]; // DISabled = TRUE, ENabled = FALSE, true overrides false (if ANY disabled=true requirements are present, the rule is disabled)
                         } catch (Exception) {
-							throw new Exception($"Invalid {req.type.GetType()} status designation.");
+							throw new Exception($"Invalid {req.type.GetType().Name}.{req.type} status designation.");
 						}
 					else
 						requirements.Add(req);

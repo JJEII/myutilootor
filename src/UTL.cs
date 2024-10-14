@@ -111,7 +111,7 @@ namespace myutilootor.src
 					// Salvage type
 					nLinesRead++;
 					tmp = sr.ReadLine() ?? ""; // should never be null, but make VS happy with ??
-                    salv.type = (E.Salvage)int.Parse(tmp);
+                    salv.type = E.Salvage.VofK( E.Salvage.KofV(int.Parse(tmp)) ); // enforces that int is in mapping
 					readCount += tmp.Length + 2;
 
 					// Ensure uniqueness
@@ -135,18 +135,18 @@ namespace myutilootor.src
 
 				// Salvage value-combinations
 
-				List<E.Salvage> temptypes = new();
+				List<int> temptypes = new();
 				for (int s = 0; s < salvCount; s++) {
 					salv = new UTLSalvage();
 					
 					// Salvage type
 					nLinesRead++;
 					tmp = sr.ReadLine() ?? ""; // should never be null, but make VS happy with ??
-                    salv.type = (E.Salvage)int.Parse(tmp);
-					readCount += tmp.Length + 2;
+                    salv.type = E.Salvage.VofK(E.Salvage.KofV(int.Parse(tmp))); // enforces that int is in mapping   // (E.Salvage)int.Parse(tmp);
+                    readCount += tmp.Length + 2;
 
 					// Ensure uniqueness
-					foreach (E.Salvage st in temptypes)
+					foreach (int st in temptypes)
 						if (st == salv.type)
 							throw new MyException("Each salvage type may have no more than one specific value-based combination rule defined. Duplicate rule identified.");
 

@@ -1,0 +1,111 @@
+{
+	// Maps salvage keys to their integer codes; internal salvage keys have V_ prepended to them.
+	// (Their values count from 1 through 77, but 3, 9, 56, 65, and 72 are missing.)
+	// Extended salvage keys (defined here) have V_x prepended to them and are not allowed to override internal mappings.
+	"Salvage": {
+		// EXAMPLE:
+		// "MaterialName" : anInteger,             // e.g., "Agate" : 10,
+		// ...
+		// "AnotherMaterialName" : anotherInteger  // e.g., "Zircon" : 50
+	},
+	
+	// Maps string-field keys to their integer codes; internal keys have M_ prepended to them.
+	// These are things acted on by requirement type 1 : String Value Match
+	// Extended keys (defined here) have M_x prepended to them and are not allowed to override internal mappings.
+	"MatchActsOn": {
+		// EXAMPLE:
+		// "AStringFieldName" : anInteger,            // e.g., "DateBorn" : 43
+		// ...
+		// "AnotherStringFieldName" : anotherInteger  // e.g., "UsageInstructions" : 14
+	},
+
+	// Maps long-field keys to their integer codes; internal keys have L_ prepended to them.
+	// These are things acted on by requirement types:
+	//    2 : Long Value Key <=
+	//    3 : Long Value Key >=
+	//   11 : Long Value Key Has Flags
+	//   12 : Long Value Key ==
+	//   13 : Long Value Key !=
+	//   and a small subset (see below) by type 2003 : Buffed Long Value Key >=
+	// Extended keys (defined here) have L_x prepended to them and are not allowed to override internal mappings.
+	"LongActsOn": {
+		// EXAMPLE:
+		// "ALongFieldName" : anInteger,            // e.g., "ActivationReqSkillId" : 176,
+		// ...
+		// "AnotherLongFieldName" : anotherInteger  // e.g., "XPForVPReduction" : 129
+	},
+
+	// Maps double-field keys to their integer codes; internal keys have D_ prepended to them.
+	// These are things acted on by requirement types:
+	//	  4 : Double Value Key <=
+	//    5 : Double Value Key >=
+	//   and a small subset (see below) by type 2005 : Buffed Double Value Key >=
+	// Extended keys (defined here) have D_x prepended to them and are not allowed to override internal mappings.
+	"DoubleActsOn": {
+		// EXAMPLE:
+		// "ADoubleFieldName" : anInteger,            // e.g., "AcidProt" : 167772163,
+		// ...
+		// "AnotherDoubleFieldName" : anotherInteger  // e.g., "Variance" : 167772171
+	},
+
+	// Maps skill-field keys to their integer codes; internal keys have S_ prepended to them.
+	// These are things acted on by requirement types:
+	//   1000 : Character Buffed Skill
+	//   1004 : Base Skill Range
+	// Extended keys (defined here) have S_x prepended to them and are not allowed to override internal mappings.
+	"Skill": {
+		// EXAMPLE:
+		// "ASkillFieldName" : anInteger,            // e.g., "Alchemy": 38,
+		// ...
+		// "AnotherSkillFieldName" : anotherInteger  // e.g., "WeaponTinkering": 28
+	},
+
+	// Maps object-Class-field keys to their integer codes; internal keys have C_ prepended to them.
+	// These are things acted on by requirement type 7 : ObjectClass
+	// Extended keys (defined here) have C_x prepended to them and are not allowed to override internal mappings.
+	"ObjectClass": {
+		// EXAMPLE:
+		// "AnObjectClassFieldName" : anInteger,           // e.g., "Armor": 2,
+		// ...
+		// "AnotherObjectClassFieldName" : anotherInteger  // e.g., "WandStaffOrb": 31
+	},
+
+
+
+
+
+
+
+	// Maps long-field keys to their integer codes; internal keys have L_ prepended to them.
+	// These are things acted on by requirement type:
+	//    2003 : Buffed Long Value Key >=
+	// Internally, these mappings are a small subset of the larger "LongActsOn" mappings above.
+	// Extended keys (defined here) have L_x prepended to them and are not allowed to override internal mappings.
+	"LKeyBuffedGEActsOn": {
+		// EXAMPLE:
+		// "ALongFieldName" : anInteger,            // e.g., "ArmorLevel": 28,
+		// ...
+		// "AnotherLongFieldName" : anotherInteger  // e.g., "MaxDamage": 218103842
+	},
+
+	// Maps double-field keys to their integer codes; internal keys have D_ prepended to them.
+	// These are things acted on by requirement type:
+	//    2005 : Buffed Double Value Key >=
+	// Internally, these mappings are a small subset of the larger "DoubleActsOn" mappings above.
+	// Extended keys (defined here) have D_x prepended to them and are not allowed to override internal mappings.
+	"DKeyBuffedGEActsOn": {
+		// EXAMPLE:
+		// "ADoubleFieldName" : anInteger,            // e.g., "AttackBonus": 167772172,
+		// ...
+		// "AnotherDoubleFieldName" : anotherInteger  // e.g., "MeleeDefenseBonus": 29
+	},
+
+	// Maps armor types to their string codes; internal armor-type keys have A_ prepended to them.
+	// Extended armor-type keys (defined here) have A_x prepended to them and are not allowed to override internal mappings.
+	"ArmorType": {
+		// EXAMPLE:
+		// "AnArmorType" : "aVTInternalString",            // e.g., "Amuli_Coat_Chest" : "Amuli Coat (Chest)"
+		// ...
+		// "AnotherArmorType" : "anotherVTInternalString"  // e.g., "Yoroi_Girth_Belt" : "Yoroi Girth (Belt)"
+	}
+}

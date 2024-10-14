@@ -18,8 +18,8 @@ using System.Text.RegularExpressions;
 namespace myutilootor.src
 {
 	class UTLRequirement {
-        // requirement parameter-vector definitions
-        internal static Dictionary<int, object[]> parameterVector = new() {
+        // requirement argument-vector definitions
+        internal static Dictionary<int, object[]> argVector = new() {
 			/*                  SpellRx */    [0] = new object[] { (string)"" },
 			/*                  MatchRx */    [1] = new object[] { (string)"", (int)0 },
 			/*                   LKeyLE */    [2] = new object[] { (int)0, (int)0 },
@@ -54,10 +54,10 @@ namespace myutilootor.src
 		};
 
         internal E.Requirement type;
-		internal List<object> data; // data in each req
+		internal List<object> data = []; // data in each req
 		internal UTLRequirement() { data = new List<object>(); }
 		internal UTLRequirement(UTLRequirement q) {
-			data = new List<object>();
+			//data = new List<object>();
 			type = q.type;
 			foreach (object d in q.data)
 				data.Add(d);
@@ -76,7 +76,7 @@ namespace myutilootor.src
 			if (!match.Success)
 				throw new MyException(TextForUsers.getInfo["Generic"]);
 			tmp = match.Groups["req"].Value;
-			match = RE.getParms[tmp].Match(qstr[(1 + tmp.Length)..]);
+			match = RE.getArgs[tmp].Match(qstr[(1 + tmp.Length)..]);
 			if (!match.Success)
 				throw new MyException(TextForUsers.getInfo[tmp]);
 			try {
@@ -87,7 +87,7 @@ namespace myutilootor.src
 						break;
 					case E.Requirement.MatchRx:      //  E.MatchActsOn   string      @"^\s+(?<l>" + _L_M_ + @")\s+(?<s>" + _S + @")$"
 						data.Add(RE.UGetStr(match.Groups["s"].Value[1..^1]));
-                        data.Add((int)Enum.Parse(typeof(E.MatchActsOn),match.Groups["l"].Value));
+						data.Add(E.MatchActsOn.VofK(match.Groups["l"].Value)); // (int)Enum.Parse(typeof(E.MatchActsOn),match.Groups["l"].Value)
 						break;
                     case E.Requirement.LKeyE:        //  E.LongActsOn   int
 					case E.Requirement.LKeyFlags:
@@ -95,8 +95,8 @@ namespace myutilootor.src
 					case E.Requirement.LKeyLE:
 					case E.Requirement.LKeyNE:
 					case E.Requirement.LKeyBuffedGE:     // limited       @"^\s+(?<l>" + _L_L_ + @")\s+(?<i>" + _I + @")$"
-						E.LongActsOn eL = (E.LongActsOn)Enum.Parse(typeof(E.LongActsOn), match.Groups["l"].Value);
-						if (type == E.Requirement.LKeyBuffedGE && eL != E.LongActsOn.L_ArmorLevel && eL != E.LongActsOn.L_MaxDamage)
+						int eL = E.LongActsOn.VofK(match.Groups["l"].Value); // (E.LongActsOn)Enum.Parse(typeof(E.LongActsOn), match.Groups["l"].Value);
+                        if (type == E.Requirement.LKeyBuffedGE && !E.LKeyBuffedGEActsOn.ContainsValue(eL)) // eL != E.LongActsOn.VofK("L_ArmorLevel") && eL != E.LongActsOn.VofK("L_MaxDamage"))
 							throw new Exception();
 						data.Add(int.Parse(match.Groups["i"].Value));
 						data.Add((int)eL);
@@ -104,11 +104,11 @@ namespace myutilootor.src
 					case E.Requirement.DKeyGE:       //  E.DoubleActsOn   dbl
 					case E.Requirement.DKeyLE:
 					case E.Requirement.DKeyBuffedGE: // @"^\s+(?<l>" + _L_D_ + @")\s+(?<d>" + _D + @")$"
-						E.DoubleActsOn eD = (E.DoubleActsOn)Enum.Parse(typeof(E.DoubleActsOn), match.Groups["l"].Value);
-						if (type == E.Requirement.DKeyBuffedGE &&
-							eD != E.DoubleActsOn.D_AttackBonus && eD != E.DoubleActsOn.D_ElementalDamageVersus &&
-							eD != E.DoubleActsOn.D_ManaCBonus && eD != E.DoubleActsOn.D_MeleeDefenseBonus)
-							throw new Exception();
+						int eD = E.DoubleActsOn.VofK(match.Groups["l"].Value); // (E.DoubleActsOn)Enum.Parse(typeof(E.DoubleActsOn), match.Groups["l"].Value);
+						if (type == E.Requirement.DKeyBuffedGE && !E.DKeyBuffedGEActsOn.ContainsValue(eD))
+								//eD != E.DoubleActsOn.VofK("D_AttackBonus") && eD != E.DoubleActsOn.VofK("D_ElementalDamageVersus") &&
+								//eD != E.DoubleActsOn.VofK("D_ManaCBonus") && eD != E.DoubleActsOn.VofK("D_MeleeDefenseBonus")
+                            throw new Exception();
 						data.Add(double.Parse(match.Groups["d"].Value));
 						data.Add((int)eD);
 						break;
@@ -121,7 +121,7 @@ namespace myutilootor.src
 						data.Add(double.Parse(match.Groups["d"].Value));
 						break;
 					case E.Requirement.ObjClass:     //  E.ObjectClass      @"^\s+(?<l>" + _L_C_ + @")$"
-						data.Add((int)Enum.Parse(typeof(E.ObjectClass), match.Groups["l"].Value));
+                        data.Add(E.ObjectClass.VofK(match.Groups["l"].Value)); // (int)Enum.Parse(typeof(E.ObjectClass), match.Groups["l"].Value)
 						break;
 					case E.Requirement.NSpellsGE:    //  int
 					case E.Requirement.EmptyMainPackSlotsGE:
@@ -155,7 +155,7 @@ namespace myutilootor.src
 						if (d < 0.0 || d > 1.0)
 							throw new Exception();
 						data.Add(d);
-						data.Add(E.A_Type_To_UtlString[match.Groups["l"].Value]);
+						data.Add(E.ArmorType.VofK(match.Groups["l"].Value)); // E.A_Type_To_UtlString[match.Groups["l"].Value]
 						break;
 					case E.Requirement.SlotColorLike://  int   hex6   byte   dbl    @"^\s+(?<i>" + _I + @")\s+(?<h>" + _H + @")\s+(?<i2>" + _I + @")\s+(?<d>" + _D + @")$"
 						ui = uint.Parse(match.Groups["h"].Value, System.Globalization.NumberStyles.HexNumber);
@@ -175,10 +175,10 @@ namespace myutilootor.src
 						break;
 					case E.Requirement.BuffedSkillGE://  E.Skill   dbl   @"^\s+(?<l>" + _L_S_ + @")\s+(?<d>" + _D + @")$"
 						data.Add(double.Parse(match.Groups["d"].Value));
-						data.Add((int)Enum.Parse(typeof(E.Skill), match.Groups["l"].Value));
-						break;
+						data.Add(E.Skill.VofK(match.Groups["l"].Value)); // (int)Enum.Parse(typeof(E.Skill), match.Groups["l"].Value)
+                        break;
 					case E.Requirement.BaseSkillRange://  E.Skill   int   int   @"^\s+(?<l>" + _L_S_ + @")\s+(?<i>" + _I + @")\s+(?<i2>" + _I + @")$"
-						data.Add((int)Enum.Parse(typeof(E.Skill),match.Groups["l"].Value));
+						data.Add(E.Skill.VofK(match.Groups["l"].Value)); //  (int)Enum.Parse(typeof(E.Skill),match.Groups["l"].Value)
 						data.Add(int.Parse(match.Groups["i"].Value));
 						data.Add(int.Parse(match.Groups["i2"].Value));
 						break;
@@ -208,14 +208,14 @@ namespace myutilootor.src
 			// Requirement type
 			ln = "\t" + type.ToString();
 			
-			// Requirement parameters
+			// Requirement arguments
 			switch( type ) {
 				case E.Requirement.SpellRx:		//  string
 					ln += " {" + RE.USetStr(((string)data[0]).ToString()) + "}";
 					break;
-				case E.Requirement.MatchRx:		//  E.MatchActsOn   string
-					ln += " " + ((E.MatchActsOn)data[1]).ToString() + " {" + RE.USetStr(((string)data[0]).ToString()) + "}";
-					break;
+				case E.Requirement.MatchRx:     //  E.MatchActsOn   string
+                    ln += " " + E.MatchActsOn.KofV((int)data[1]) + " {" + RE.USetStr(((string)data[0]).ToString()) + "}"; // ((E.MatchActsOn)data[1]).ToString()
+                    break;
 				case E.Requirement.LKeyE:		//  E.LongActsOn   int
 				case E.Requirement.LKeyFlags:
 				case E.Requirement.LKeyGE:
@@ -223,15 +223,15 @@ namespace myutilootor.src
 				case E.Requirement.LKeyNE:
 				case E.Requirement.LKeyBuffedGE:        // limited
 					string commentStr = "";
-					if (type != E.Requirement.LKeyBuffedGE && (int)data[1] == (int)E.LongActsOn.L_ArmorSetID)
+					if (type != E.Requirement.LKeyBuffedGE && (int)data[1] == E.LongActsOn.VofK("L_ArmorSetID")) // (int)E.LongActsOn.L_ArmorSetID
 						commentStr = AutoComment.GetEquipmentSetNameById( (int)data[0] );
-                    ln += " " + ((E.LongActsOn)data[1]).ToString() + " " + ((int)data[0]).ToString() + commentStr;
-					break;
+                    ln += " " + E.LongActsOn.KofV((int)data[1]) + " " + ((int)data[0]).ToString() + commentStr; // ((E.LongActsOn)data[1]).ToString()
+                    break;
 				case E.Requirement.DKeyGE:		//  E.DoubleActsOn   dbl
 				case E.Requirement.DKeyLE:
 				case E.Requirement.DKeyBuffedGE:
-					ln += " " + ((E.DoubleActsOn)data[1]).ToString() + " " + ((double)data[0]).ToString();
-					break;
+					ln += " " + E.DoubleActsOn.KofV((int)data[1]) + " " + ((double)data[0]).ToString(); // ((E.DoubleActsOn)data[1]).ToString()
+                    break;
 				case E.Requirement.DmgPercentGE: //  dbl
 				case E.Requirement.MinDmgGE:
 				case E.Requirement.CalcedBuffedMedianDmgGE:
@@ -241,7 +241,7 @@ namespace myutilootor.src
 					ln += " " + ((double)data[0]).ToString();
 					break;
 				case E.Requirement.ObjClass:     //  E.ObjectClass
-					ln += " " + ((E.ObjectClass)data[0]).ToString();
+					ln += " " + E.ObjectClass.KofV((int)data[0]); // ((E.ObjectClass)data[0]).ToString()
 					break;
 				case E.Requirement.NSpellsGE:	//  int
 				case E.Requirement.EmptyMainPackSlotsGE:
@@ -256,8 +256,8 @@ namespace myutilootor.src
 					ln += " " + GetStr_HexHueSV((byte)data[0], (byte)data[1], (byte)data[2], (byte)data[3], (double)data[4]);
 					break;
 				case E.Requirement.ArmorColorLike:// eA_Type   hex6   byte   dbl
-					ln += " " + E.UtlString_To_A_Type[((string)data[5])] + " " + GetStr_HexHueSV((byte)data[0], (byte)data[1], (byte)data[2], (byte)data[3], (double)data[4]);
-					break;
+					ln += " " + E.ArmorType.KofV((string)data[5]) + " " + GetStr_HexHueSV((byte)data[0], (byte)data[1], (byte)data[2], (byte)data[3], (double)data[4]); // E.UtlString_To_A_Type[((string)data[5])]
+                    break;
 				case E.Requirement.SlotColorLike://  int   hex6   byte   dbl
 					ln += " " + ((int)data[5]).ToString() + " " + GetStr_HexHueSV((byte)data[0], (byte)data[1], (byte)data[2], (byte)data[3], (double)data[4]);
 					break;
@@ -265,11 +265,13 @@ namespace myutilootor.src
 					ln += " " + ((int)data[0]).ToString() + " " + ((int)data[1]).ToString();
 					break;
 				case E.Requirement.BuffedSkillGE://  E.Skill   dbl
-					ln += " " + ((E.Skill)data[1]).ToString() + " " + ((double)data[0]).ToString();
-					break;
+                    //ln += " " + ((E.Skill)data[1]).ToString() + " " + ((double)data[0]).ToString();
+                    ln += " " + E.Skill.KofV((int)data[1]) + " " + ((double)data[0]).ToString();
+                    break;
 				case E.Requirement.BaseSkillRange://  E.Skill   int   int
-					ln += " " + ((E.Skill)data[0]).ToString() + " " + ((int)data[1]).ToString() + " " + ((int)data[2]).ToString();
-					break;
+                    //ln += " " + ((E.Skill)data[0]).ToString() + " " + ((int)data[1]).ToString() + " " + ((int)data[2]).ToString();
+                    ln += " " + E.Skill.KofV((int)data[0]) + " " + ((int)data[1]).ToString() + " " + ((int)data[2]).ToString();
+                    break;
 				case E.Requirement.CalcedBuffedTinkTarget: //  dbl   dbl   dbl
 					ln += " " + ((double)data[0]).ToString() + " " + ((double)data[1]).ToString() + " " + ((double)data[2]).ToString();
 					break;
