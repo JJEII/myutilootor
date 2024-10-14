@@ -1,4 +1,4 @@
-# myutilootor v.0.0.0.4
+# myutilootor v.0.1.1
 myutilootor is a metaf-like utl editor in an alternate format from that used by the "ClassicLooter" in the VirindiTank addon to the MMORPG game Asheron's Call. myutilootor provides
 full feature coverage for editing loot files, and very straightforward bidirectional translation between .utl and .mut, with VirindiTank still running the end results.
 Requires .NET Core. Notepad++ strongly recommended.
